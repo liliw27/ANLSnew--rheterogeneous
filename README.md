@@ -16,6 +16,11 @@
 
 ## 快速开始（推荐给学生）
 
+### 环境要求
+
+- **JDK**：建议 JDK 8 或更高（本项目使用了 `SplittableRandom` 等标准库特性）
+- **IDE（推荐）**：IntelliJ IDEA（学生主要用 Windows 的话建议直接用 IDEA 跑）
+
 ### 方式 1（最推荐）：用 IntelliJ IDEA 直接运行
 
 运行入口：`src/test/testSA.java` 的 `main()`
@@ -27,10 +32,8 @@
 在项目根目录执行：
 
 ```bash
-mkdir -p build/classes
-find src -name "*.java" > build/sources.txt
-javac -encoding UTF-8 -d build/classes @build/sources.txt
-java -cp build/classes test.testSA
+scripts/build.sh
+scripts/run_testSA.sh --start=1 --end=1 --runs=1
 ```
 
 ### 方式 3（可选/备用，Windows）：PowerShell 一键运行
@@ -65,13 +68,43 @@ java -cp build/classes test.testSA --start=1 --end=1 --runs=1 --dumpSolution=tru
 
 ---
 
+## 用 Git 管理代码（强烈推荐的学生工作流）
+
+本项目已经初始化了 Git 仓库，你可以在 IntelliJ IDEA 里用图形界面完成所有操作（也可以用命令行）。
+
+### 推荐做法（每个实验/作业一条分支）
+
+- **新建分支**：为每次实验/改动创建一个分支，避免把“能跑的基线”改坏
+
+```bash
+git switch -c exp/my-first-operator
+```
+
+- **小步提交**：每改完一个小模块就提交一次（注释/重构/新算子都可以）
+
+```bash
+git add -A
+git commit -m "新增：XXX 移除算子（并补充中文注释）"
+```
+
+- **需要回滚时**：用 IDEA 的 History 或命令行查看差异/回退
+
+```bash
+git log --oneline --decorate -n 10
+git show <commit>
+```
+
+> 注意：`build/`、`out/`、`output/` 都在 `.gitignore` 里，不会被提交（这是刻意的）。
+
+---
+
 ## 目录结构（高层）
 
 - **`src/io/`**：读取实例数据（`Reader.java` / `Reader2.java`）
 - **`src/model/`**：解表示与可逆状态（`Route/Segment/Node/...`）
 - **`src/move/removal/`**：destroy（移除/破坏）算子
-- **`src/move/insertion/`**：repair（插入/修复）算子 + 插入评估
-- **`src/SA/`**：ALNS+SA 主循环（`SimulatedAnnealing.java`）与初始解（`InitialConstructor.java`）
+- **`src/move/insertion/`**：repair（插入/修复）算子 + 插入评估（已按职责拆分子包，见下）
+- **`src/SA/`**：ALNS+SA 主流程（`SimulatedAnnealing.java` + `AnnealingLoop.java`）与配置/初始化/验证等子模块
 - **`src/test/`**：实验入口（`testSA.java`）
 - **`data/`**：算例（`data/Instance/...` 等）
 - **`output/`**：运行输出（目标随迭代、温度随迭代、解文件等）
@@ -122,7 +155,9 @@ java -cp build/classes test.testSA --start=1 --end=1 --runs=1 --dumpSolution=tru
 
 1. `docs/ARCHITECTURE.md`：理解解表示（`DepotNode` 分段、多趟）与一次迭代流程
 2. `src/model/Segment.java`：多舱多产品约束如何用 `productUsed/productResidual/compartmentResidual` 表示
-3. `src/move/insertion/EvaluateInsertion.java`：插入评估（II / SI / STI 三策略）
-4. `src/SA/SimulatedAnnealing.java`：ALNS + SA 接受准则 + 算子权重更新
+3. `src/move/insertion/evaluation/EvaluateInsertion.java`：插入评估（II / SI / STI 三策略）
+4. `src/SA/AnnealingLoop.java`：主迭代循环（算子选择、温度、接受/拒绝、终止条件）
+5. `src/SA/operators/OperatorManager.java`：算子选择与权重更新（ALNS 自适应）
+6. `src/SA/SimulatedAnnealing.java`：状态容器、快照（回滚/保存最优解）、辅助方法入口
 
 
