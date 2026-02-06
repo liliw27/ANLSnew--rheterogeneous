@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 $RootDir = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $RootDir
 
-# Always build first (simple and reproducible for students).
+# Always build first (simple and reproducible).
 & (Join-Path $PSScriptRoot "build.ps1")
 
 Write-Host "[run] Running src/test/testSA ..."

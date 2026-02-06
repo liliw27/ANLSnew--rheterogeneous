@@ -6,7 +6,7 @@ cd "$ROOT_DIR"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Build if needed (or always, to keep it simple and reproducible for students).
+# Build first (simple and reproducible).
 "$SCRIPT_DIR/build.sh"
 
 echo "[run] Running src/test/testSA ..."

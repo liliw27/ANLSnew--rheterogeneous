@@ -8,7 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
- * 运行轨迹输出（教学版）。
+ * 运行轨迹输出。
  *
  * <p>用于把 SA 的温度/目标值随迭代变化写入文件，便于画图或调试。</p>
  *
@@ -27,7 +27,7 @@ public final class RunTrace implements AutoCloseable {
      * 若启用则创建 trace writer；否则返回 null。
      *
      * <p>路径保持与历史实现一致：`./output/SAtemperature.txt` 与 `./output/SAobjective.txt`。</p>
-     * <p>若 output 目录不存在，会自动创建（对学生更友好）。</p>
+     * <p>若 output 目录不存在，会自动创建（更易用）。</p>
      */
     public static RunTrace createIfEnabled(boolean enabled) {
         if (!enabled) return null;

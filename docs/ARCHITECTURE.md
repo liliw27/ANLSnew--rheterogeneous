@@ -1,6 +1,6 @@
 # 架构与数据结构说明（建议先读）
 
-本文档面向“在此代码基础上做拓展”的学生，目标是把 **论文概念** 与 **代码实现** 一一对齐，避免在没有理解解表示的情况下直接改算子导致不可行/状态不一致。
+本文档面向“在此代码基础上做拓展”的读者，目标是把 **论文概念** 与 **代码实现** 一一对齐，避免在没有理解解表示的情况下直接改算子导致不可行/状态不一致。
 
 ---
 
@@ -24,7 +24,7 @@
 - **车辆 itinerary（含多趟）**：`model.Route`（双向链表）
 - **depot 节点**：`model.DepotNode`（`index = 0`）
 
-> 提示（给新手）：需要调实验参数时，优先修改 `src/SA/config/SAConfig.java`（或在 `testSA` 里通过命令行参数覆盖，例如 `--timeLimitMs=3000 --seed=1`），不要去改 `SimulatedAnnealing` 里散落的字段。
+> 提示：需要调实验参数时，优先修改 `src/SA/config/SAConfig.java`（或在 `testSA` 里通过命令行参数覆盖，例如 `--timeLimitMs=3000 --seed=1`），不要去改 `SimulatedAnnealing` 里散落的字段。
 
 ---
 
@@ -129,7 +129,7 @@ Segment 维护多舱多产品资源状态（对齐论文的“舱室分配/容�
 ### 4.3 调试时的两个“容易踩坑”的副作用
 
 - **`printBestRoutes()` 会改变当前解**：它会先 `restoreEarlierState(BEST_SOLUTION)` 再打印，这对调试很方便，但如果你在迭代中途调用它，会把当前 working solution 直接覆盖成 best solution。
-- **控制台输出默认应当安静**：为了方便学生批量跑实验，`SimulatedAnnealing` 里有 `VERBOSE_LOG`（默认关闭）。需要追踪中间过程时再临时打开。
+- **控制台输出默认应当安静**：为了方便批量跑实验，`SimulatedAnnealing` 里有 `VERBOSE_LOG`（默认关闭）。需要追踪中间过程时再临时打开。
 
 ---
 
@@ -180,7 +180,7 @@ destroy 算子位于 `move/removal/`，典型包括：
 - 根据车辆舱室总容量，把大需求拆成若干“直达（depot->customer->depot）”的 visit
 - 余量需求形成 reduced instance，再用插入评估逐个插入
 
-这里会生成三类节点集合（阅读代码时建议学生先画图理解）：
+这里会生成三类节点集合（阅读代码时建议先画图理解）：
 
 - **fullDirectNodes**：满载直达
 - **unFullDirectNodes**：非满载但直达（仍作为单独 trip）
@@ -190,7 +190,7 @@ destroy 算子位于 `move/removal/`，典型包括：
 
 ## 8. 不变量（写新算子前必须遵守）
 
-建议学生在改动任何插入/移除逻辑之前，先理解并遵守以下不变量：
+建议在改动任何插入/移除逻辑之前，先理解并遵守以下不变量：
 
 - **链表一致性**：`prev/next` 指针必须互相匹配，route 的 `routeStart/routeEnd` 必须可达
 - **Route 时长一致性**：`Route.duration` 必须等于链表相邻节点距离之和
@@ -212,7 +212,7 @@ destroy 算子位于 `move/removal/`，典型包括：
 - **Segment.customersInSegment**：必须等于该 segment 内的节点数（本实现中包含 depot 节点）
 - **currentObjective**：必须等于 `makespan * MAKESPAN_MULTIPLIER + sum(route.duration)`
 
-### 8.2 常见“破坏不变量”的方式（学生最常踩坑）
+### 8.2 常见“破坏不变量”的方式
 
 - **只改链表指针，不更新 Segment**：移动/插入节点后忘记调用 `Segment.addNode/removeNode`，导致 `productUsed` 等资源状态错
 - **只更新 Segment，不更新 Route 统计字段**：忘记同步 `Route.duration/nrNodes/segments`
@@ -226,7 +226,7 @@ destroy 算子位于 `move/removal/`，典型包括：
 
 ---
 
-## 9. 扩展点（学生可以从这里开始改）
+## 9. 扩展点（从这里开始改）
 
 ### 9.1 新增 destroy 算子
 
@@ -255,6 +255,6 @@ destroy 算子位于 `move/removal/`，典型包括：
 
 - `src/io/GenerateInstance.java`
 
-它们不参与 `Reader → SimulatedAnnealing` 的主流程；学生如果只做算子/约束扩展，可以先忽略这些文件，避免被与求解无关的 I/O 细节干扰。
+它们不参与 `Reader → SimulatedAnnealing` 的主流程；如果只做算子/约束扩展，可以先忽略这些文件，避免被与求解无关的 I/O 细节干扰。
 
 

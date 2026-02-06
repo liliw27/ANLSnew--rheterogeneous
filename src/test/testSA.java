@@ -16,9 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 实验运行入口 / 命令行入口（教学版）。
- *
- * <p>建议学生先只关心这件事：如何读取算例并运行 {@link SimulatedAnnealing}。</p>
+ * 实验运行入口 / 命令行入口。
  *
  * <p>本文件默认只做“跑实验 + 打印汇总 +（可选）导出解”。如果你需要复现论文时期的复杂统计输出，
  * 请使用 {@code --mode=legacy}（对应 {@link LegacyPaperStats}）。</p>
@@ -57,7 +55,7 @@ public class testSA {
     }
 
     /**
-     * 教学版最常用的运行模式：每个算例跑多次，打印 best/avg/worst 与平均耗时。
+     * 常用运行模式：每个算例跑多次，打印 best/avg/worst 与平均耗时。
      */
     private static void runSimple(ExperimentConfig cfg, SAConfig saConfig) throws IOException {
         int instanceNum = cfg.endInstanceNo - cfg.startInstanceNo + 1;
@@ -109,7 +107,7 @@ public class testSA {
                     " worst=" + worstObj + " avgTime=" + String.format("%.3f", aveTimeSec) + "s");
         }
 
-        // 总结输出（面向学生：简单直观）
+        // 总结输出（简单直观）
         System.out.println();
         System.out.println("=== 汇总（共 " + instanceNum + " 个算例，每个算例运行 " + cfg.runNum + " 次）===");
         System.out.println("objective：best avg worst time(s)");
@@ -167,7 +165,7 @@ public class testSA {
     }
 
     /**
-     * 运行参数（教学版）。
+     * 运行参数。
      *
      * <p>支持两种参数形式：</p>
      * <ul>
@@ -371,7 +369,7 @@ public class testSA {
         System.out.println("常用可选项：");
         System.out.println("  --printBestRoutes=true   打印最优解路线（可能很长，默认 false）");
         System.out.println("  --verbose=true           打印更详细的运行信息（默认 false）");
-        System.out.println("  --mode=simple|legacy     simple 为教学版；legacy 运行论文时期统计（默认 simple）");
+        System.out.println("  --mode=simple|legacy     simple 为默认模式；legacy 运行论文时期统计（默认 simple）");
         System.out.println();
         System.out.println("可选 SA/ALNS 参数（用于冒烟/复现实验）：");
         System.out.println("  --timeLimitMs=1200 --maxNonImprovingIterations=60 --seed=1 --saRestarts=1");

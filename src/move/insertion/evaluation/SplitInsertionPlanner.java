@@ -21,7 +21,7 @@ import java.util.List;
  *   <li>根据插入计划计算目标增量（总路程 + makespan 罚项）</li>
  * </ul>
  *
- * <p>该类是 package-private：只服务于 insertion 模块内部，避免暴露给学生过多入口。</p>
+ * <p>该类是 package-private：只服务于 insertion 模块内部，避免暴露过多入口。</p>
  */
 final class SplitInsertionPlanner {
 

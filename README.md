@@ -1,4 +1,4 @@
-# FRP（Fuel Replenishment Problem）— ALNS + SA 教学版代码基线
+# FRP（Fuel Replenishment Problem）— ALNS + SA 代码基线
 
 本项目是论文 **“The fuel replenishment problem: A split-delivery multi-compartment vehicle routing problem with multiple trips”**（见根目录 PDF）的一份 Java 实现原型，核心算法为 **ALNS（Adaptive Large Neighborhood Search）+ SA（Simulated Annealing 接受准则）**。
 
@@ -14,12 +14,12 @@
 
 ---
 
-## 快速开始（推荐给学生）
+## 快速开始
 
 ### 环境要求
 
 - **JDK**：建议 JDK 8 或更高（本项目使用了 `SplittableRandom` 等标准库特性）
-- **IDE（推荐）**：IntelliJ IDEA（学生主要用 Windows 的话建议直接用 IDEA 跑）
+- **IDE（推荐）**：IntelliJ IDEA（Windows 环境建议直接用 IDEA 运行）
 
 ### 方式 1（最推荐）：用 IntelliJ IDEA 直接运行
 
@@ -68,11 +68,11 @@ java -cp build/classes test.testSA --start=1 --end=1 --runs=1 --dumpSolution=tru
 
 ---
 
-## 用 Git 管理代码（强烈推荐的学生工作流）
+## 用 Git 管理代码（推荐工作流）
 
 本项目已经初始化了 Git 仓库，你可以在 IntelliJ IDEA 里用图形界面完成所有操作（也可以用命令行）。
 
-### 推荐做法（每个实验/作业一条分支）
+### 推荐做法（每个实验一条分支）
 
 - **新建分支**：为每次实验/改动创建一个分支，避免把“能跑的基线”改坏
 
@@ -108,9 +108,9 @@ git show <commit>
 - **`src/test/`**：实验入口（`testSA.java`）
 - **`data/`**：算例（`data/Instance/...` 等）
 - **`output/`**：运行输出（目标随迭代、温度随迭代、解文件等）
-- **`docs/ARCHITECTURE.md`**：架构与数据结构详解（建议学生先读）
+- **`docs/ARCHITECTURE.md`**：架构与数据结构详解（建议先读）
 
-> 提示：`build/`、`out/`、`output/` 都是运行/编译生成物。教学分发时建议保持仓库“只含源码与数据”，这些目录可随时删除并重建。
+> 提示：`build/`、`out/`、`output/` 都是运行/编译生成物。建议保持仓库“只含源码与数据”，这些目录可随时删除并重建。
 
 ---
 
@@ -123,7 +123,7 @@ git show <commit>
 3. `DEMANDS SECTION ...`：每行一个节点的多产品需求（包含 depot 和虚拟终点）
 4. 距离矩阵 section：\((nrStations + 2) \times (nrStations + 2)\)
 
-### 重要实现细节（务必让学生知道）
+### 重要实现细节（务必阅读）
 
 - **需求单位缩放**：`Reader` 会把需求除以 1000 并向上取整（`ceil(d/1000)`）。
 - **车辆行**：文件里每行可能有 3 列（例如 `<compartmentNum> <capacity> <vehicle_id>`），当前实现只读取前两列，忽略 `vehicle_id`。
@@ -149,7 +149,7 @@ git show <commit>
 
 ## 辅助工具（非主求解流程）
 
-- `src/io/GenerateInstance.java`：用于从一些“原始排班/经纬度/站点文件”生成案例数据的遗留工具，不参与 `Reader → SimulatedAnnealing` 的主求解链路。需要时再用，不建议学生把它当 solver 的一部分修改。
+- `src/io/GenerateInstance.java`：用于从一些“原始排班/经纬度/站点文件”生成案例数据的遗留工具，不参与 `Reader → SimulatedAnnealing` 的主求解链路。需要时再用，不建议把它当 solver 的一部分修改。
 
 ## 下一步要读什么
 

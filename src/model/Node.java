@@ -1,7 +1,7 @@
 package model;
 
 /**
- * 链表解表示中的基础节点类型（教学版）。
+ * 链表解表示中的基础节点类型。
  *
  * <p>一条 {@link Route} 是由 {@link Node} 组成的<strong>双向链表</strong>。</p>
  *

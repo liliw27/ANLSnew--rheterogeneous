@@ -12,7 +12,7 @@ import java.io.IOException;
  * ALNS+SA 的主迭代循环（从 {@link SimulatedAnnealing} 中抽出）。
  *
  * <p>目的：让 {@link SimulatedAnnealing} 更像“状态容器 + 算子集合 + 快照能力”，
- * 把长且线性的主循环逻辑放到独立类中，学生读起来更顺。</p>
+ * 把长且线性的主循环逻辑放到独立类中，结构更清晰。</p>
  *
  * <p><b>行为约束</b>：本类应尽量保持与原始 {@code SimulatedAnnealing.run()} 完全一致的行为（包括终止方式、计数与 trace 输出）。</p>
  */

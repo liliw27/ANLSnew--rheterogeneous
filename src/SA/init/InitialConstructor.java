@@ -14,7 +14,7 @@ import java.util.*;
  * <p>目标：在满足多舱（multi-compartment）、多产品、多趟（multi-trip）和可拆分配送（split delivery）约束下，
  * 构造一个可行的初始解供 ALNS+SA 主循环优化。</p>
  *
- * <p><b>实现概要（教学建议按此顺序读代码）</b>：</p>
+ * <p><b>实现概要（建议按此顺序阅读代码）</b>：</p>
  * <ol>
  *   <li><b>为每个客户选择一辆“参考车辆”</b>（启发式分配，仅用于估算直达趟次的拆分规则）。</li>
  *   <li><b>为每个客户生成直达趟次（depot→customer→depot）的 visit</b>，分两类：

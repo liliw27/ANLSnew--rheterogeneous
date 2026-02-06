@@ -95,7 +95,7 @@ public class Segment extends ReversibleDataStructure
     /**
      * 重新计算 {@link #productResidual} 与 {@link #compartmentResidual}。
      *
-     * <p>把“整舱取整”的细节集中在一个地方，减少学生修改时漏更的概率。</p>
+     * <p>把“整舱取整”的细节集中在一个地方，减少修改时漏更的概率。</p>
      */
     private void recomputeResiduals() {
         int usedCompartments = 0;

@@ -10,7 +10,7 @@ import model.Segment;
 import java.util.Arrays;
 
 /**
- * 当前解状态的一致性/不变量检查器（教学版）。
+ * 当前解状态的一致性/不变量检查器。
  *
  * <p>这是本项目最重要的“护栏”。如果你要修改任何 destroy/repair 算子（或 Route/Segment 的结构操作），
  * 强烈建议在开发期间保持该检查开启（见 run() 中的 assert）。</p>
@@ -29,7 +29,7 @@ import java.util.Arrays;
  *       {@code makespan * MAKESPAN_MULTIPLIER + sum(route.duration)}</li>
  * </ul>
  *
- * <p><b>常见失败原因</b>（学生最容易踩坑）：</p>
+ * <p><b>常见失败原因</b>：</p>
  * <ul>
  *   <li>插入/删除节点时忘记更新 {@code Route.duration}/{@code nrNodes}/{@code segments}</li>
  *   <li>移动节点时未同步 segment 归属（忘记调用 {@code Segment.addNode/removeNode}）</li>

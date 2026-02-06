@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.SplittableRandom;
 
 /**
- * ALNS 算子管理工具（教学版）。
+ * ALNS 算子管理工具。
  *
  * <p>把“算子选择（均匀/按权重）+ 权重更新 + 记录 usedNum/iterationRecord”等与主循环解耦，
  * 让 {@link SimulatedAnnealing#run()} 更聚焦于“执行 move + SA 接受/回滚”。</p>

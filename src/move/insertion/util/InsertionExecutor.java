@@ -13,7 +13,7 @@ import move.insertion.evaluation.InsertType;
  *
  * <p>目的：Greedy/Regret 等算子本质差异只在“怎么选下一个要插入的 visit”，
  * 但它们执行插入与后处理（合并相邻重复 visit）的代码高度重复。将重复逻辑集中到这里，
- * 便于学生阅读与后续扩展。</p>
+ * 便于阅读与后续扩展。</p>
  */
 public final class InsertionExecutor {
     private InsertionExecutor() {}

@@ -4,7 +4,7 @@ package SA.config;
  * Centralized configuration for the ALNS+SA heuristic.
  *
  * <p>This class exists to avoid scattered "magic numbers" across the codebase and to make it
- * easier for students to reproduce the paper settings and experiment with parameter changes.</p>
+ * easier to reproduce the paper settings and experiment with parameter changes.</p>
  *
  * <p>Defaults are chosen to match the current implementation and (where applicable) the paper's
  * parameter table (e.g. nonImpmax=1000, timeLimit=3600s, Nsg=100, alpha=100, beta=1).</p>

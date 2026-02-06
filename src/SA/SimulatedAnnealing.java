@@ -2,7 +2,6 @@ package SA;
 
 import SA.config.SAConfig;
 import SA.init.InitialConstructor;
-import SA.operators.OperatorManager;
 import SA.trace.RunTrace;
 import SA.verify.SolutionVerifier;
 import model.*;
@@ -23,7 +22,7 @@ public class SimulatedAnnealing extends ReversibleDataStructure {
     /**
      * 是否开启更详细的控制台日志（用于调试）。
      *
-     * <p>默认保持 {@code false}，避免学生批量跑实验时控制台刷屏，影响复现与阅读。</p>
+     * <p>默认保持 {@code false}，避免批量跑实验时控制台刷屏，影响复现与阅读。</p>
      */
     private static final boolean VERBOSE_LOG = false;
     /** makespan 的权重（对应论文中的 \(\alpha\)）。 */
@@ -91,7 +90,7 @@ public class SimulatedAnnealing extends ReversibleDataStructure {
     public int count4 = 0;
     public int count5 = 0;
 
-    // 教学版建议：尽量减少“入口形态”，避免小白在一堆构造器里迷路。
+    // 建议：尽量减少“入口形态”，避免在一堆构造器里迷路。
     // 本类仅保留 2 个 public 构造器：
     // - SimulatedAnnealing(instance)
     // - SimulatedAnnealing(instance, config)
@@ -101,7 +100,7 @@ public class SimulatedAnnealing extends ReversibleDataStructure {
     }
 
     public SimulatedAnnealing(Instance dataModel, SAConfig config) {
-        // 小白阅读建议：你只需要知道两件事——
+        // 阅读建议：你只需要知道两件事——
         // 1) 所有可调参数都在 SAConfig 里；2) 构造函数做的事就是“读配置→建初始解→初始化算子→准备输出”。
 
         // 1) 保存输入与配置（复制一份，避免外部在构造后修改 config 造成“隐式副作用”）
@@ -225,7 +224,7 @@ public class SimulatedAnnealing extends ReversibleDataStructure {
      *   <li>达到时间上限或连续过多非改进步时终止</li>
      * </ol>
      *
-     * <p><b>终止条件（教学版重点说明）</b>：</p>
+     * <p><b>终止条件（重点说明）</b>：</p>
      * <ul>
      *   <li><b>硬时间上限</b>：运行时间超过 {@link #TIME_LIMIT_MS}（默认 3600s）则退出，并恢复到 BEST_SOLUTION</li>
      *   <li><b>连续非改进上限</b>：若连续 {@link #MAX_NON_IMPROVING_ITERATIONS} 次没有让“当前解”变好，则退出并恢复到 BEST_SOLUTION</li>
@@ -244,7 +243,7 @@ public class SimulatedAnnealing extends ReversibleDataStructure {
         new AnnealingLoop(this).run();
 
         // 说明：历史遗留的“大段统计/打印代码”（用于画分布图、导出权重轨迹等）已从本文件移除，
-        // 以免干扰学生阅读主流程。若需要参考旧实现，请见 `docs/LEGACY_NOTES.md`（或 git 历史）。
+        // 以免干扰主流程阅读。若需要参考旧实现，请见 `docs/LEGACY_NOTES.md`（或 git 历史）。
         if (trace != null) {
             trace.close();
         }
@@ -275,7 +274,7 @@ public class SimulatedAnnealing extends ReversibleDataStructure {
         assert Arrays.stream(routes).mapToInt(r -> r.nrNodes - r.segments - 1).sum() == N1 : "sa.N: " + N1 + " after: " + Arrays.stream(routes).mapToInt(r -> r.nrNodes - r.segments - 1).sum();
     }
 
-    /* -------------------- 主循环的私有辅助方法（不影响学生理解入口） -------------------- */
+    /* -------------------- 主循环的私有辅助方法（不影响主流程阅读） -------------------- */
 
     void log(String msg) {
         if (VERBOSE_LOG) {

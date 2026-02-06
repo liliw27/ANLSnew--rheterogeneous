@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * 实例读取器（文本格式，教学版）。
+ * 实例读取器（文本格式）。
  *
  * <p>本项目的实例文件位于 {@code data/Instance/.../*.txt}，但历史上存在<strong>两种</strong>常见格式：</p>
  * <ol>
@@ -104,7 +104,7 @@ public class Reader
     }
 
     // -----------------------------
-    // 解析实现细节（为了教学可读性拆成小函数）
+    // 解析实现细节（为提升可读性拆成小函数）
     // -----------------------------
 
     private static List<Vehicle> readVehiclesHeterogeneous(Scanner scanner, int nrVehicles) {
