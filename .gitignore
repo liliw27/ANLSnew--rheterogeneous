@@ -6,6 +6,7 @@
 
 # IntelliJ IDEA
 out/
+.idea/
 
 # Local helper files generated during compilation in this repo
 sources.txt
