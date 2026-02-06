@@ -1,0 +1,1071 @@
+                                                              Computers and Operations Research 118 (2020) 104904
+
+
+
+                                                                  Contents lists available at ScienceDirect
+
+
+                                                   Computers and Operations Research
+                                                             journal homepage: www.elsevier.com/locate/cor
+
+
+
+
+The fuel replenishment problem: A split-delivery multi-compartment
+vehicle routing problem with multiple trips
+L. Wang a,b, J. Kinable a,∗, T. van Woensel a
+a
+    School of Industrial Engineering, Eindhoven University of Technology, Eindhoven, The Netherlands
+b
+    Department of Oil and Gas Storage and Transportation Engineering, China University of Petroleum, Beijing, China
+
+
+
+
+a r t i c l e            i n f o                          a b s t r a c t
+
+Article history:                                          The Fuel Replenishment Problem (FRP) is a multi-compartment, multi-trip, split-delivery VRP in which
+Received 25 May 2019                                      tanker trucks transport different types of petrol, separated over multiple vehicle compartments, from an
+Revised 31 January 2020
+                                                          oil depot to petrol stations. Large customer demands often necessitate multiple deliveries. Throughout a
+Accepted 1 February 2020
+                                                          single working day, a tanker truck returns several times to the oil depot to resupply. A solution to the FRP
+Available online 8 February 2020
+                                                          involves computing a delivery schedule of minimum duration, thereby determining for each vehicle (1)
+Keywords:                                                 the allocation of oil products to vehicle compartments, (2) the delivery routes, and (3) the delivery pat-
+Fuel replenishment                                        terns. To solve FRP eﬃciently, an Adaptive Large Neighborhood Search (ALNS) heuristic is constructed. The
+Multi-compartment                                         heuristic is evaluated on data from a Chinese petroleum transportation company and compared against
+Multi-trip                                                exact results from a MILP model and lower bounds from a column generation approach. In addition, we
+Split-delivery                                            perform sensitivity analysis on different problem features, including the number of vehicles, products,
+Vehicle routing
+                                                          vehicle compartments and their capacities. Computational results show that the ALNS heuristic is capa-
+Adaptive large neighborhood search
+                                                          ble of solving instances with up to 60 customers and 3 different products in less than 25 minutes with
+                                                          an average optimality gap of around 10%. On smaller instances, the heuristic ﬁnds optimal solutions in
+                                                          signiﬁcantly less time than the exact MILP formulation.
+                                                                                                                             © 2020 Elsevier Ltd. All rights reserved.
+
+
+
+
+1. Introduction                                                                               continue servicing other fuel stations. At the end of the day, the
+                                                                                              vehicles return to the central depot.
+    This paper deals with a multi-compartment, multi-trip and                                     Each fuel station carries one or more types of fuel. The fuel de-
+split-delivery routing problem that occurs, for example, in the con-                          mand of some of the bigger fuel stations, typically located near
+text of petrol station replenishment. We denote this problem as                               busy highways, often exceeds the capacity of a single vehicle.
+the Fuel Replenishment Problem (FRP). The cost of vehicle trans-                              Therefore, multiple vehicles may be required to satisfy the demand
+portation accounts for 60% to 70% of the total cost of the existing                           of a single station. The latter contrasts to traditional VRP problems
+reﬁned oil logistics system (Lihua, 2012). Therefore, eﬃcient vehi-                           in which a customer is visited only once by a single vehicle.
+cle routing is crucial. In general, a vehicle is separated into two to                            Following the categorization proposed by Coelho and La-
+ﬁve compartments storing several incompatible oil products. These                             porte (2015), the Multi-Compartment Delivery Problem considered
+compartments are inﬂexible to avoid leakage and contamination.                                in this paper can be classiﬁed as a split-split delivery problem. For
+Using debit meters, the content in one compartment can be split                               split-split VRPs, three decisions need to be made: (1) the vehicle
+among several customers. Likewise, a petrol station can be sup-                               routes, (2) the compartment assignment, i.e. the capacity of each
+plied by multiple vehicles (split-delivery).                                                  product, and, (3) the delivery pattern of each route and each prod-
+    Petrol stations are replenished by a ﬂeet of heterogeneous ve-                            uct. Every vehicle is allowed to execute multiple trips.
+hicles. The vehicles load fuel at a central depot, and then travel to                             The main scientiﬁc contributions of this paper are as follows:
+one or more petrol stations to deliver their fuel. Once empty, the
+vehicles return to the central depot to resupply after which they                              • We propose a comprehensive variant of the split-delivery ve-
+                                                                                                 hicle routing problem (SD-VRP) considering multiple compart-
+                                                                                                 ments, multiple trips and a heterogeneous ﬂeet of vehicles.
+    ∗                                                                                          • We develop a Mixed Integer Programing (MILP) formulation for
+     Corresponding author.
+     E-mail addresses: mxdsjyd@163.com (L. Wang), j.kinable@tue.nl (J. Kinable),                 the described routing problem. To benchmark, we obtain exact
+t.v.woensel@tue.nl (T. van Woensel).                                                             solutions for some small instances using CPLEX. We addition-
+
+https://doi.org/10.1016/j.cor.2020.104904
+0305-0548/© 2020 Elsevier Ltd. All rights reserved.
+2                                     L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904
+
+
+      ally develop a column generation approach to compute lower                         delivery is started. Avella et al. (2004) studied a petrol replenish-
+      bounds as an additional benchmark.                                                 ment problem involving product packing and vehicle routing. The
+    • We adapt the Adaptive Large Neighborhood Search (ALNS)                             authors simpliﬁed the problem by an assumption that each com-
+      heuristic to solve our problem for larger instances. The so-                       partment of the vehicle must travel either full or empty. Other au-
+      lutions obtained by the ALNS approach are compared to the                          thors discussed variants of this petrol replenishment problem: sin-
+      solutions of both the MILP model and the lower bound ob-                           gle period (Cornillier et al., 2008a), multi-period (Cornillier et al.,
+      tained by the column generation approach. We show that our                         2008b), with time windows (Cornillier et al., 2009) and multi-
+      ALNS heuristic consistently outperforms MILP. The ALNS obtains                     depot (Cornillier et al., 2012). In these papers, the authors limit the
+      the same or better solutions than the MILP for all small in-                       number of customers (up to 4) for each trip according to a distri-
+      stances within 10 seconds per instance, whereas, for larger in-                    bution policy used in practice.
+      stances, solving the MILP directly does not give a feasible solu-                      Popović et al. (2012) propose a Variable Neighborhood
+      tion within a two hour time limit. For the largest instance with                   Search(VNS) heuristic for a multi-period Inventory Routing Prob-
+      60 customers and 20 vehicles, computation times of the ALNS                        lem (IRP) involving the distribution of petrol with a multi-
+      stay well below 25 minutes, while obtaining an average opti-                       compartment vehicle ﬂeet. Similar to the aforementioned papers,
+      mality gap of less than 10%.                                                       Popović et al. (2012) also assume only full compartments are de-
+    A problem similar to the FRP discussed in this paper is found                        livered, and each vehicle can visit up to 3 customers per trip.
+in Coelho and Laporte (2015). Coelho and Laporte (2015) con-                             Vidović et al. (2014) developed a Variable Neighborhood Search
+sider several exact branch-and-cut algorithms for a class of multi-                      (VNS) heuristic for a multi-product multi-period IRP with a multi-
+compartment delivery problems based on formulations for multi-                           compartment homogeneous ﬂeet. In addition, they proposed a
+period inventory-routing problems. Using a branch-and-cut ap-                            MILP model for the problem and limited each route to 4 cus-
+proach, they are able to solve instances with up to 10 customers,                        tomers. Benantar et al. (2016) considered a multi-compartment In-
+3 products, 3 compartments, and 6 vehicles to optimality. In this                        ventory Routing Problem (IRP) with time windows. In contrast to
+work, the focus is on the design of an eﬃcient metaheuristic ca-                         Cornillier et al. (2009), they do not limit the number of customers
+pable of solving a FRP for a single planning period. In contrast to                      visited in a route.
+the VRPs discussed in Coelho and Laporte (2015), the tanker trucks                           Table 1 presents a comparison of the main references after
+in our problem typically perform multiple trips a day. Moreover,                         20 0 0.
+the goal is to compute schedules of minimum duration, thereby                                The split-delivery vehicle routing problem (SDVRP) also re-
+spreading the workload over the available vehicles, as opposed to                        ceived attention in the literature. Dror and Trudeau (1989) and
+merely minimizing the total travel time.                                                 Dror and Trudeau (1990) proposed a local search approach to solve
+    The remainder of this paper is organized as follows:                                 the SDVRP. Afterwards, more complex approaches, such as meta-
+Section 2 presents a brief review of the existing work related                           heuristics and hybrid algorithms were introduced. Sierksma and
+to this paper. Section 3 formally describes our problem on-hand                          Tijssen (1998) proposed an algorithm based on a column gen-
+and gives details on the mathematical formulation. Section 4 in-                         eration algorithm, combined with other heuristics to solve a
+troduces a column generation method, obtaining a lower bound                             ﬂight scheduling problem. Archetti et al. (2006) proposed a
+for our problem on-hand. In Section 5, we develop an adaptive                            Tabu search algorithm for the SDVRP. These authors also intro-
+large neighborhood search (ALNS). In Section 6, we report on the                         duced a hybrid Tabu search and integer programming algorithm.
+computational results. We conclude the paper in Section 7.                               There are few papers that studied exact algorithms for SDVRP.
+                                                                                         Lee et al. (2006) developed a dynamic programming method with
+2. Related literature                                                                    inﬁnite state and action spaces. Jin et al. (2007) proposed a two-
+                                                                                         stage algorithm with valid inequalities to solve the SDVRP to opti-
+   In this paper, we discuss a vehicle routing problem involving                         mality. Feillet et al. (2006) introduced a branch-price-cut method
+multiple compartments, split-delivery, and multiple trips. There                         to solve the SDVRP. Another branch-price-cut algorithm capable
+are a few papers related to the problem discussed in this pa-                            of solving SDVRP instances up to 100 customers is presented by
+per. These papers are based on the assumption that the compart-                          Desaulniers (2010). Archetti et al. (2011) enhanced the latter work
+ments in the vehicle are not equipped with debit meters, imply-                          by introducing several valid inqualities, and by proposing an eﬃ-
+ing that a compartment should be completely emptied once the                             cient Tabu search to solve the pricing subproblem. Finally, a vari-
+
+
+                             Table 1
+                             Literature comparison.
+
+                                                               Fleet       TW      MC       MP/MT    IRP    MD      # Cust     Split
+
+                                 Avella et al. (2004)          Heterog.    no      no       -        no     no      unlim.     -
+                                 Abdelaziz et al. (2002)       Heterog.    no      yes      -        no     no      unlim.     u-u
+                                 Ng et al. (2008)              Heterog.    no      yes      -        no     no      unlim.     u-u
+                                 Vidović et al. (2014)        Homog.      no      yes      MP       yes    no      max. 3     u-u
+                                 Popović et al. (2012)        Homog.      no      yes      MP       yes    no      max. 4     u-u
+                                 Benantar et al. (2016)        Heterog.    yes     yes      -        yes    no      unlim.     u-u
+                                 Cornillier et al. (2008a)     Heterog.    no      yes      -        yes    no      max. 2     u-u
+                                 Cornillier et al. (2008b)     Heterog.    no      yes      MP       yes    no      max. 2     u-u
+                                 Cornillier et al. (2009)      Heterog.    yes     yes      MT       yes    no      max. 4     u-u
+                                 Cornillier et al. (2012)      Heterog.    yes     yes      MT       yes    yes     max. 3     u-u
+                                 Coelho and Laporte (2015)     Homog.      no      yes      MP       yes    no      unlim.     u-u, u-s,
+                                                                                                                               s-u, s-s
+                                 This paper                    Heterog.    no      yes      MT       no     no      unlim.     s-s
+                             ∗
+                              TW: Time Window; MC: Multi-Compartment; MP: Multi-Period; MT: Multi Trip; IRP: Inventory Routing
+                             Problem; MD: Multi-Depot; # Cust: Maximum number of customers per route; Split: Split: Possibility to
+                             split the compartment and the demand of the customer or not (Coelho and Laporte (2015) for the details),’u’
+                             means unsplit and ’s’ means split.
+                                             L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904                                                    3
+
+
+ant of the SDVRP with time-windows, split delivery, and weight-                              quantity of each product delivered to customer iv during visit v.
+                                                                                                                                    
+related cost is addressed by Luo et al. (2016).                                              The set of trips T is deﬁned as k∈K Tk .
+    The literature on multi-compartment vehicle routing problem                                  In the remainder of this paper, we denote by δ (S), for any sub-
+(MCVRP) covers various application domains including waste col-                              set of vertices S⊆V, the set of edges with exactly one endpoint in S.
+lection (Muyldermans and Pang (2010) and Henke et al. (2015)),                               When S is a singleton vertex, we use the shorthand δ (i) instead of
+foods or groceries delivery (Derigs et al., 2011; Hübner and                                 δ ({vi }). The set E(S) denotes the set of edges with both endpoints
+Ostermeier, 2018) and in livestock transportation (Oppen and                                 in S.
+Løkketangen, 2008). Lahyani et al. (2015) solve a problem involving                              We formulate the FRP as a Mixed Integer Linear Program
+the collection of olive oil with different qualities with a branch-                          (MILP). For each vehicle k ∈ K, the MILP explicitly models a num-
+and-cut algorithm. El Fallahi et al. (2008) augment classical VRP                            ber of trips Tk = {0, 1, 2, . . . , Tkmax }, where Tkmax is an upper bound
+instances with vehicle compartments. Mendoza et al. (2010) use                               on the number of trips vehicle k should make. Here Tkmax can be
+a memetic algorithm to solve an MCVRP with stochastic de-                                    computed by assuming that all deliveries are performed by a single
+mands and developed a constructive heuristics for their algorithm                            vehicle k, i.e.:
+(Mendoza et al., 2011). Melechovskỳ (2013) extend the MCVRP by                                                              qip  
+considering time windows and solved the problem using a VNS al-                                              i∈V        p∈P      Qk
+                                                                                             Tkmax =                                                                                       (1)
+gorithm.                                                                                                              Ck
+
+                                                                                             In the MILP formulation below, binary variables xti j model whether
+3. Problem deﬁnition and mathematical model
+                                                                                             vehicle k ∈ K traverses edge (i, j) ∈ E during trip t ∈ Tk . Similarly,
+                                                                                                                    tp
+                                                                                             continuous variables ui record the amount of product p ∈ P deliv-
+    The FRP is formally deﬁned on a complete, undirected graph
+                                                                                             ered during trip t to customer i ∈ V. The number of vehicle com-
+G = (V, E ) with node set V, and edge set E = {(i, j ) : i, j ∈ V, i < j}.
+                                                                                             partments dedicated to a product p ∈ P during a trip t is mod-
+The node set V = {0, 1, 2, . . . , n} consists of a supply depot 0, and
+                                                                                             eled by integer variables ztp . Finally, binary variables yti are used to
+a set of 1, 2, . . . , n customers (e.g. the petrol stations). Each cus-
+                                                                                             identify whether customer i is visited during trip t.
+tomer i ∈ V has a non-negative demand di,p for some (oil) product
+                                                                                                 The FRP model is formulated as follows:
+p ∈ P. For brevity, we often denote the demand di ∈ R|P| of some                                                             
+customer i ∈ V as a vector, i.e. di = (di,1 , di,2 , . . . , di,|P| ). Assume that           minimize ατ + β                                      dij xtij                                 (2)
+the depot has no demand (d0 = 0). Servicing is performed by a het-                                                          k∈K t∈Tk (i, j )∈E
+
+erogeneous ﬂeet of vehicles K which are stationed at the supply                                                     
+depot. Each vehicle k ∈ K has Ck compartments of capacity Qk . For                                    s.t. τ ≥                      di j xti j                                  ∀k ∈ K (3)
+                                                                                                                   t∈Tk (i, j )∈E
+simplicity, we assume that the compartments in a vehicle are of
+equal size. Between any pair of locations i, j ∈ V, a positive travel                                        
+time dij > 0 is speciﬁed (satisfying the triangle inequality). A sum-
+                                                                                                                       xt0 j ≤ 1                                         ∀k ∈ K, t ∈ Tk (4)
+                                                                                                           j∈V \{0}
+mary of notation used is provided in Table 2.
+    A solution to FRP consists of a set of itineraries, one for each ve-                                                         
+                                                                                                                      xti j +               xtji = 2yti         ∀k∈K, t ∈Tk , i ∈ V \ {0} (5)
+hicle, which minimizes both makespan and total travel time, while
+                                                                                                           j∈V,i< j             j∈V, j<i
+collectively satisfying the demand of all customers. More precisely,
+a vehicle itinerary describes the order in which a vehicle must visit                                         
+                                                                                                                            xti j ≤|S|−1          ∀S ⊆ N \ {0}, |S|≥2, k∈K, t ∈Tk (6)
+its customers, the quantity of each product it must load when the
+                                                                                                           (i, j )∈E (S )
+vehicle (re-)visits the supply depot, and the quantity of each type
+                                                                                                           
+of fuel it must deliver during each of the customer visits. We will                                                     uti p = qip                                      ∀i ∈ V, p ∈ P     (7)
+refer to a product delivery as a customer visit. Similarly, a trip is                                      k∈K t∈Tk
+deﬁned as the sequence of visits performed by a vehicle between
+                                                                                                             
+its departure from the supply depot and its next return to the sup-                                                   uti p ≤ zt p Q k                            ∀k ∈ K, t ∈ Tk , p ∈ P   (8)
+ply depot. Note that, since a vehicle is able to resupply, a vehicle                                       i∈V \{0}
+can re-visit the same customer during different trips.
+                                                                                                           
+    Let Tk be the set of trips performed by vehicle k ∈ K. Trips in Tk                                           zt p ≤ C k                                              ∀k ∈ K, t ∈ Tk (9)
+can be performed in arbitrary order, since each trip starts and ends                                       p∈P
+at the same depot, and there are no temporal constraints imposed
+on the customer visits. Each trip t ∈ Tk constitutes an ordered se-                                        uti p ≤ yti Q kC k                    ∀k ∈ K, t ∈ Tk , p ∈ P, i ∈ V \ {0} (10)
+quence of customer visits. Each visit v is uniquely associated with
+a customer iv ∈ V. A vector qtv = (qtv1 , qtv2 , . . . , qtv|P| ) speciﬁes the
+                                                                                                           0 ≤ zt p ≤ C k                                         ∀k ∈ K, t ∈ Tk , p ∈ P (11)
+
+Table 2                                                                                                    0 ≤ uti p ≤ min{Q kC k , qip }                       ∀i∈V, k ∈ K, t ∈Tk , p∈P (12)
+Notation.
+
+  Parameter/Set                    Description
+
+  V = { 0 , 1, 2, . . . , n}       Set of stations and depot                                               xti j ∈ {0, 1}                                     ∀(i, j ) ∈ E, k ∈ K, t ∈ Tk (13)
+  E = { (i, j )|i, j ∈ V, i < j}   Set of undirected edges
+  K                                Set of vehicles
+  P                                Set of different products                                               yti ∈ {0, 1}                                      ∀i ∈ V \ {0}, k ∈ K, t ∈ Tk (14)
+  qip                              Demand of station i ∈ V for product p ∈ P
+  Qk                               Capacity of a single compartment of vehicle k ∈ K
+  dij                              Travel time associated with arc (i, j) ∈ E                   Using non-negative scalars α and β , the weighted objective
+  Ck                               Number of compartment in vehicle k ∈ K                    function (2) minimizes the makespan as well as the total travel
+  Tk                               Trips performed by vehicle k
+                                                                                            time. Constraints (3) track the latest completion time (makespan)
+  T                                Set of all trips: k∈K Tk
+                                                                                             of the vehicle itineraries. Constraints (4)-(6) implement the trip
+4                                                  L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904
+
+
+
+
+Fig. 1. Solutions to the FRP instance given in Table 3. A square represents the depot, a circle represents a visit v to the customer indicated inside the circle. The vector above
+each circle speciﬁes the delivery quantity per product (qtv ). The number above the ﬁnal depot in each route represents the route duration.
+
+
+structure. A vehicle can depart from the depot at most once during                                 Each vehicle compartment has a capacity of 80 units. An optimal
+each trip (Constraints (4)). Constraints (5),(6) respectively imple-                               solution to this problem instance in which the makespan compo-
+ment ﬂow preservation and eliminate subtours. Next, Constraints                                    nent is prioritized over the total travel distance is shown in Fig. 1a.
+(7)-(9) deal with the vehicle capacities and customer demands.                                     Observe that each vehicle has a maximum capacity of 80 × 3 = 240
+The demand for each product for each customer must be satis-                                       units, and that some customers require more than 240 units of
+ﬁed (Constraint (7)). Each vehicle compartment can be dedicated                                    products. It might be tempting to create dedicated Full Truck Load
+to at most one product (Constraint (9)), but product allocations                                   (FTL) trips for customers who’s demand exceeds the capacity of a
+may change between trips. The maximum amount of fuel a ve-                                         single vehicle, but this approach leads to suboptimal solutions. As
+hicle can deliver during a single trip is bounded by the number                                    an example, we could create an FTL trip for customer 2 in which a
+of compartments dedicated to this type of fuel, multiplied by the                                  vehicle delivers 240 units of p2 . In the resulting optimization prob-
+compartment capacity (Constraint (8)). From Constraints (8), (9), it                               lem we would have to assign the FTL trips to vehicles, as well as
+follows that the maximum amount of product provided by vehi-                                       any additional trips required to serve the remaining demand of
+cle k during a single trip cannot exceed Qk Ck . Finally, Constraints                              each customer. The resulting schedule is depicted in Fig. 1b: de-
+               tp
+(10) link the ui and yti variables.                                                                spite a higher number of FTL trips, the makespan of the solution
+    To reduce symmetry in the model, the following constraints are                                 1b is longer than the makespan of solution 1a.
+added:
+                        
+           di j xti j ≥              di j xt+1             ∀k ∈ K, t ∈ Tk \ Tkmax       (15)       4. Lower bounds
+                                           ij
+i∈V j∈V,                  i∈V j∈V,
+    i< j                      i< j                                                                     The model presented in Section 3 explicitly models trips for
+These constraints order the trips performed by each vehicle,                                       each vehicle. As a consequence, the performance of this model is
+thereby ensuring that the duration of each consecutive trip is not                                 strongly correlated to the number of trips allocated to each vehicle.
+longer than its preceding trip.                                                                    The bound Tkmax computed in Eq. (1) is typically weak. Computing
+   The FRP, as deﬁned by Constraints (2)-(15), belongs to the class                                stronger bounds is non-trivial. Consequently, the scalability of the
+of NP-hard problems (reduction to the Capacitated Vehicle Routing                                  MILP model is limited.
+Problem). An example problem instance of FRP having 4 customers,                                       In order to assess the quality of the ALNS heuristic presented in
+3 products and ﬁve 3-compartment vehicles is given in Table 3.                                     Section 5 on larger problem instances, we propose an alternative
+                                                                                                   mathematical model that can be used to compute strong bounds
+                           Table 3                                                                 on the optimal objective value.
+                           Instance data for V = {0, 1, 2, 3, 4}.                                      For a given vehicle k ∈ K, let Tk be the set of all potential re-
+                             (a) Demands of the customers                                          source feasible trips vehicle k can make. Each trip must visit one
+                                                                                                   or more customers, and start and end at the supply depot. More-
+                                     p1      p2       p3
+                                                                                                   over, let δ t denote the duration of trip t, μtip the amount of product
+                             1       145     260      260
+                                                                                                   p ∈ P delivered to customer i ∈ V during trip t, and let binary pa-
+                             2       0       370      75
+                             3       0       295      150                                          rameter eti j indicate whether edge (i, j) ∈ E is traversed in trip t.
+                             4       0       150      110                                          Using binary assignment variables wtk which assign trips to vehi-
+                             (b) Distance Matrix                                                   cles, we then formulate the FRP as follows:
+                                     0       1        2       3     4                                MP :
+                                                                                                                              
+                             0       0       13       12      12    24
+                                                                                                     minimize ατ + β                    δt wtk                              (16)
+                             1       13      0        8       23    33
+                             2       12      8        0       18    26                                                        t∈T k∈K
+                             3       12      23       18      0     12                                                  
+                             4       24      33       26      12    0                                        s.t. τ ≥         δt wtk                  ∀k ∈ K                (17)
+                                                                                                                        t∈T
+                                                    L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904                             5
+
+                 
+                             μtip wtk ≥ qip                        ∀i ∈ V, p ∈ P                  (18)       This change to the pricing problem is easily accommodated for
+                 t∈T k∈K                                                                                 in the objective function (26) of our pricing problem formulation.
+                                                                                                         Since the set of Capacity Inequalities is exponentially large, it is
+                 wtk ∈ Z0                                          ∀t ∈ T , k ∈ K                 (19)   undesirable to add them all at once to the master problem. In-
+                                                                                                         stead, a separation procedure is used to separate violated inequal-
+                                                                                                         ities. We ﬁrst run the CG procedure until no more columns with
+                 τ ≥0                                                                             (20)
+                                                                                                         negative reduced cost can be identiﬁed. Next the separation pro-
+   The weighted objective function (16), together with Constraint                                        cedure is invoked. Whenever violated inequalities are identiﬁed,
+(17) minimize the makespan plus the total travel time. Constraints                                       they are added to MP and the CG procedure is resumed. To sepa-
+(18) ensure that the demand of each customer is satisﬁed.                                                rate Capacity Inequalities, we ﬁrst invoke the heuristic route-based
+   Due to the large number of potential trips for each vehicle, this                                     algorithm proposed by Archetti et al. (2011) (see Section 4.2 in
+model cannot be solved directly by an ILP solver. Instead a Col-                                         Archetti et al. (2011)). If this method fails to identify violated in-
+umn Generation (CG) procedure is developed. Let LPM be the Lin-                                          equalities, we subsequently invoke the computationally more ex-
+ear Program Relaxation obtained from model MP by relaxing the                                            pensive partial enumeration routine by Desaulniers (2010) (see
+integrality conditions on the wtk variables (Eq. (19)). Associate dual                                   5.2.1 in Desaulniers (2010)).
+variables ζ k ≤ 0, ηip ≥ 0 with constraints (17), (18) respectively.                                         Finally, when no more columns with negative reduced cost or
+The dual problem DMP of LPM then becomes:                                                                violated inequalities can be identiﬁed, an optimal solution to LPM
+                                                                                                         is obtained. Note that, due the relaxation of the integrality con-
+ DMP :
+                                                                                                       ditions of the wtk variables, the resulting solution can be frac-
+ maximize                     ηip qip                                                             (21)   tional. The CG procedure can be embedded in a branch-and-price
+                  i∈V p∈P                                                                                framework in order to guarantee integer feasible solutions. The
+                                                                                                       latter is however outside the scope of this paper. We refer in-
+           s.t. δt (ζ k − α ) +                     μtip ηip ≤ 0            ∀t ∈ T , k ∈ K (22)          terested readers to Desaulniers (2010), Archetti et al. (2011), and
+                                        i∈V p∈P                                                          Luo et al. (2016). The optimal solution to LPM constitutes a valid
+                                                                                                        lower bound on the optimal objective value of our FRP.
+                 −          ζk ≤ α                                                                (23)
+                     k∈K
+                                                                                                         5. ALNS heuristic
+                 ζk ≤ 0                                                               ∀k ∈ K      (24)
+                                                                                                             This section presents an Adaptive Large Neighborhood Search
+                                                                                                         (ALNS) heuristic for the FRP, based on the ALNS framework out-
+                 ηip ≥ 0                                                    ∀i ∈ V, p ∈ P         (25)   lined in Ropke and Pisinger (2006) and Pisinger and Ropke (2007).
+Following a standard CG procedure (e.g., see Desaulniers, 2010)                                          Similar to a conventional Large Neighborhood Search (LNS) heuris-
+LPM is solved for a small subset of trips Tk ⊂ Tk for all vehicles                                      tics (Shaw, 1998), ALNS follows a ruin-and-recreate paradigm.
+k ∈ K. At every iteration of the CG procedure, a pricing problem is                                      However, in contrast to LNS, ALNS relies on multiple destroy and
+solved for each vehicle k ∈ K to identify columns with negative re-                                      repair operators, which are randomly selected through preferen-
+                                                                                                       tial selection. An overview of our ALNS framework is provided in
+duced cost, i.e. columns for which δt (ζ k − α ) + i∈V p∈P μtip ηip >
+                                                                                                         Algorithm 1. During each iteration of the heuristic, a destroy oper-
+0, which are then added to the set Tk . A simpliﬁed version of the
+                                                                                                         ator is chosen to ruin the current solution, thereby removing visits,
+MILP model in Section 3 can be used to solve the pricing problem
+                                                                                                         trips, or even entire routes from the schedule. Next, a repair op-
+for a given vehicle k ∈ K; the deﬁnitions of the variables remain
+                                                                                                         erator is selected to repair the (partially) destroyed solution. The
+the same, but their t index is dropped. The pricing problem then
+                                                                                                         destroy/repair procedure is embedded in a local search framework,
+becomes:
+                                                                                                         in our case Simulated Annealing, to determine whether the new
+ P RICING(k ) :                                                                                          solution is accepted as the starting point of the next iteration, or
+                                                                   
+     maximize             ζk − α                 dij xij +                  ηip uip               (26)   rejected in favor of the old solution. The ALNS heuristic terminates
+                                     (i, j )∈E               i∈V \{0} p∈P                                when either a time limit is reached, or a maximum number of
+                                                                                                         non-improving moves have been performed.
+                s.t. Eq. (4 ) − (6 ), (8 ) − (10 )                                                (27)       The ALNS heuristic is initialized with a feasible solution ob-
+                                                                                                         tained through a constructive heuristic (Section 5.1). At each itera-
+    When solving the Master Problem for a homogeneous set of ve-
+                                                                                                         tion of the ALNS heuristic, a destroy and a repair operator are se-
+hicles as opposed to a heterogeneous set, it suﬃces to solve the
+                                                                                                         lected based on their past performance. A description of this selec-
+pricing problem only once for a single vehicle k during each iter-
+                                                                                                         tion procedure is provided in Section 5.2, followed by an overview
+ation of the column generation algorithm, where k = argmax ζ k .
+                                                                                            k∈K
+                                                                                                         of destroy and repair operators (Section 5.3). Each invocation of
+This observation follows directly from the deﬁnition of the pricing                                      a destroy operator removes one or more visits from the schedule
+problem and the domains of the dual variables.                                                           and adds them to a pool of removed visits. Notice that multiple
+   The master problem is strengthened by adding the following                                            visits belonging to the same customer can be removed during a
+Capacity Inequalities:                                                                                   single invocation. These visits are added separately to the pool of
+                                     ⎡                            ⎤                                    removed visits; we do not aggregate these visits into a larger visit.
+                                                        d p (S )
+                                          p∈P           Q                                             After the destroy operator removed a number of visits, a repair op-
+                         eti j wtk ≥ 2⎢
+                                      ⎢
+                                                                    ⎥ ∀S ⊆ V \{0}, |S| ≥ 2
+                                                                    ⎥                                    erator is selected to re-insert the visits stored in the removal pool
+                                     ⎢              C               ⎥
+k∈K t∈T (i, j )∈δ (S )                                                                                   back into the schedule. Typically there exist multiple feasible al-
+                                                                                                  (28)   ternatives to re-insert a visit back into the schedule, each leading
+                                                                                                         to a different solution with a different objective value. The repair
+    Associating dual variables λS with inequalities (28) leads to the                                    operator ultimately decides which of these alternatives is selected.
+following adjusted pricing problem:                                                                          When inserting a visit somewhere in the schedule, we ensure
+                                                                     
+δt (ζ k − α ) +                vtip ηip +                                    eti j λS > 0         (29)   that the resulting (partial) schedule remains feasible. This implies
+                     i∈V p∈P                 S⊆V \{0},|S|≥2 (i, j )∈δ (S )                               that a visit can only be inserted into an existing trip if this does
+6                                     L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904
+
+
+
+    Algorithm 1: ALNS with SA.                                                          Algorithm 2: Split insertion - splits a visit into multiple
+   Input: Destroy operators , repair operators , initial                                smaller visits.
+            temperature T , cooling rate κ , initial solution Xinit                       Input: visit v for some customer iv ∈ V
+   Output: A feasible solution Xbest                                                    1 cost ← 0         total cost incurred by splitting visit v
+ 1 Xcurrent ← Xbest ← Xinit                                                             2 qt ← qtv
+                                                                                        3 T = {t ∈ T : 0 < a (t , qt ) < qt }
+                                                                                           s
+ 2 itnonImp ← 0
+                                                                                                              s
+                                                                                        4 while qt > 0 and T = ∅ do
+ 3 repeat
+                                                                                                                        c (t )
+ 4     Select a destroy operator δ ∈         with probability                           5      t  = argmint ∈ T s |a(ivt ,qt )|      trip with lowest weighted
+            | |
+       wd / i=1 wi                                                                             insertion cost
+ 5     Select a repair operator ψ ∈          with probability                           6      cost ← cost + civ (t  )
+             | |                                                                              insert (v , t  ) and set qtv = a(t  , qt ), iv = iv
+       wψ / i=1 wi                                                                      7
+
+ 6     Xnew ← ψ (δ (Xcurrent ))                                                         8      qt ← qt − qtv
+ 7     if obj(Xnew ) < obj(Xcurrent ) then                                              9      T s = {t ∈ T s : 0 < a(t , qt ) ≤ qt }
+ 8         itnonImp ← 0                                                                10   if qt > 0 then
+ 9         Xcurrent ← Xnew                                                             11       fail()
+10         if obj(Xcurrent ) < obj(Xbest ) then
+11             Xbest ← Xcurrent
+
+12      else
+13         itnonImp ← itnonImp + 1                                                    v for customer iv , based on a ratio between the insertion cost and
+14         Generate a random number ∈ [0, 1]                                          the product quantities that can be delivered in trip t. This process
+15         if < e−(ob j (Xnew )−ob j (Xcurrent ))/T then                              is repeated until visits equivalent to a demand of qtv are inserted,
+16             Xcurrent ← Xnew                                                        or the set of trips with residual capacity is exhausted. In the latter
+                                                                                      case, the operator fails to split delivery v. A vector qt, initialized to
+17    T ← κT                                                                          qtv , is used to track the remaining demand for each product after
+18    Update operator probabilities                                                   each iteration of the algorithm.
+19 until timeLimit or itnonImp ≥ nonImpmax                                                 Note that to prevent too much fragmentation, the SI operator
+                                                                                      is only allowed to insert visits into trips which cannot be used by
+                                                                                      the II operator (trips that do not have enough residual capacity to
+                                                                                      serve qtv entirely). The function a(t , qt ) : (T , R|P| ) → R|P| is used to
+not exceed the capacity of the vehicle performing the trip. When-                     determine the quantity st ∈ R|P| , 0 ≤ st ≤ qt, of products that can
+ever a visit is inserted into a trip which already contains a visit for               be delivered to customer iv in trip t, based on the residual capacity
+the same customer, we simply merge these visits and the respec-                       of the vehicle performing trip t. A precise deﬁnition of the func-
+tive delivered quantities.                                                            tion a(t, qt) is provided in Algorithm 3. The function ﬁrst attempts
+     We consider three strategies to insert an individual visit into                  to ﬁll up any partially ﬁlled compartments of the vehicle serving
+the schedule: Integral Insertion (II), Split Trip Insertion (STI), and                trip t. Next, a greedy procedure is used to ﬁll up any unused com-
+Split Insertion (SI).                                                                 partments of the same vehicle. Preference is given to products for
+     The II strategy simply inserts a visit into an existing trip. The
+STI strategy splits an existing trip t into two trips t1 , t2 , and assign
+the visit to either one of the two trips. Splitting a trip is performed
+by inserting a depot visit in between the sequence of customer vis-                     Algorithm 3: Implementation of a(τ , qt).
+its. If this depot visit is inserted after the last customer visit, then                    Input: demand vector qt ∈ R|P| , trip τ ∈ T
+this is equivalent to creating a new empty trip. To limit the num-                          Output: vector sv ∈ R|P| , 0 ≤ sv ≤ qt: quantity of products
+ber of alternative solutions to be evaluated, we require that the                                   that would be supplied to customer iv if a new visit
+visit that has to be inserted becomes either the last visit in trip t1 ,                            v for customer iv were to be inserted into trip τ
+or the ﬁrst visit in t2 . Finally, in contrast to the II strategy, the SI
+strategy does not reinsert a visit v back into the schedule; instead                        Fill up partially filled compartments. Let rest p be
+a number of smaller visits are inserted such that the amounts of                          the total unused capacity of non-empty compartments
+each product supplied by the smaller visits add up to qtv . In doing                      holding product p ∈ P of the vehicle serving trip t ∈ T .
+so, the SI strategy aims to increase vehicle utilization by claiming                    1 sv = [min{resτ p , qt p }] p∈P
+left-over capacity of vehicles. In our implementation of the SI strat-                  2 qt ← qt − sv
+egy, we do not exhaustively consider every possible alternative to
+split a visit into smaller visits which can be distributed over the                         Allocate products to empty compartments. Let cτ be
+existing trips, as the number of alternatives is typically too large.                     the number of empty compartments of the vehicle serving
+Instead, we devised a fast, heuristic procedure to compute SIs. Note                      trip τ .
+                                                                                           
+                                                                                        3 c ← cτ
+that this approach does not guarantee to identify any feasible SI
+                                                                                                 
+                                                                                        4 while c > 0 do
+even if one exists.                                                                                                 
+     An overview of the SI strategy is given in Algorithm 2. Let                        5    p = argmax p ∈ Pqt p − t∈T \τ rest p
+ci (t) be the minimum cost incurred when inserting a visit for cus-                     6      if qt p >0 then
+tomer i into trip t ∈ T, where ci (t ) = 0 when trip t already visits                   7          sv p = sv p + min{Q k , qt p }
+customer i. When splitting a visit v into multiple smaller visits,                      8          qt p = min{0, qt p − Q k }
+we must ensure that the product quantities delivered in the re-
+                                                                                        9          c ← c − 1
+sulting visits add up to qtv . An iterative procedure, described in
+Algorithm 2, is used to split a visit v for customer iv . At each itera-               10   return sv
+tion, the algorithm determines the best trip t to insert a new visit
+                                             L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904                               7
+
+
+         Table 4
+         Adaptive adjustment of the operator scores.
+
+            Reward      Value      Eligibility criteria
+
+            σ1          5          The last ALNS iteration produced a new best solution
+            σ2          3          The last ALNS iteration produced a solution that was better than the solution from the previous iteration
+            σ3          1          The solution from the last ALNS iteration is worse than the solution from the previous iteration, but was nevertheless accepted
+
+
+
+
+which there is a large demand and for which there is little spare                            5.2. Operator selection
+capacity in any of the other trips (line 5).
+                                                                                                 As is conventional in ALNS, the destroy (resp. repair) operators
+5.1. Initial solution                                                                        are selected with a probability proportional to their past perfor-
+                                                                                             mance. Let  be the set of available operators (e.g. destroy op-
+    An initial feasible solution Xinit for the ALNS heuristic is ob-                         erators), and wγ a weight associated with each operator γ ∈  .
+tained through a simple constructive procedure. This procedure                               The probability that an operator γ ∈  is selected is set equal to
+works in two separate phases:                                                                wγ / i ∈  wi .
+                                                                                                 The ALNS search is partitioned into sequences of 100 consec-
+1. Generate a set of vehicle-independent trips T such that the trips                         utive iterations. Throughout a sequence, the performance of each
+   collectively satisfy the demand of all customers.                                         operator is monitored, and, at the end of the sequence the weights
+2. Assign each trip t ∈ T to a vehicle.                                                      of the operators are adjusted according to their performance. Each
+                                                                                             time an operator is invoked during an ALNS iteration, it is able to
+   When vehicles are heterogeneous, we only generate trips which                             collect a reward; a summary of potential rewards and their eligi-
+meet the capacity requirements of the smallest vehicle k =                                  bility criteria is given in Table 4. Let π γ be the total reward accu-
+                                                      
+argmin Q kC k , having C = C k compartments and Q = Q k capacity                             mulated by operator γ during a sequence, and β γ the number of
+  k∈K
+per compartment.                                                                             times the operator was invoked during the sequence. At the end of
+   The process of generating trips is subdivided into three steps,                           each sequence, the normalized performance of an operator is given
+                                                                                                 π
+which attempt to generate trips with high vehicle utilization. The                           by βγ , and a new weight wγ for each operator γ ∈  is calculated
+                                                                                                    γ
+heuristic ﬁrst generates dedicated trips for each customer i ∈ V in-                         as follows:
+dependently, which utilize the maximum capacity (C × Q) of the                                                          πγ
+smallest  vehicle. Clearly, for a given customer i ∈ V, there exist                          wγ = wγ (1 − ξ ) + ξ         ,                                         (30)
+                                                                                                                     βγ
+    p∈P qip /Q 
+        C            such trips.
+                                                                                             where scalar ξ (0 ≤ ξ ≤ 1) controls how sensitive the weights re-
+   Let qi , i ∈ V, be a vector representing for each product the re-
+                                                                                             act to changes in the operator’s performance. In our implementa-
+maining, unsatisﬁed demand of a customer. After generating the
+                                                                                             tion, at the beginning of the ALNS search, all operators have equal
+               (FTL) trips, for a given customer i ∈ V, it follows
+Full Truck Load
+                                                                                            weight. Moreover, destroy and repair operators are selected inde-
+               qip
+that:   p∈P     Q   < C, i.e. the residual demand of the remaining                           pendently from each other.
+products is not suﬃcient to ﬁll up another vehicle with C com-
+partments of size Q. Next, a number of dedicated, Less-than-Truck-
+                                                                                             5.3. Destroy and repair operators
+Load (LTL) trips for each customer are derived. We require that
+for each dedicated LTL trip, each vehicle compartment must hold
+                                                                                                 Six removal operators are used, the ﬁrst three of them are
+some product, and that precedence is given to products for which
+                                                                                             directly adopted from Shaw (1998), Ropke and Pisinger (2006),
+the customer has the largest residual demand. As an example, let
+                                                                                             Pisinger and Ropke (2007); the remaining three operators are tai-
+C = 3, Q = 80, and di = (100, 20, 50 ) for some customer i. We cre-
+                                                                                             lored to our problem. To be self-contained, we include a brief de-
+ate a dedicated LTL trip for customer i containing a single visit
+                                                                                             scription of each operator. For more details, we refer to the afore-
+v with qtv = (100, 0, 50 ). The residual demand of customer i be-
+                                                                                             mentioned references.
+  qi = (0, 20, 0 ). Again, for a single customer i ∈ V, there exist
+comes
+    p∈P qip /Q 
+        C            such LTL trips.                                                           • Random Removal (RR): randomly remove φ ∈ [1, ρ |V|] visits
+                                                                                                 from the schedule, where the scalar ρ is the destroy rate.
+    After updating qi with the LTL trips for each customer i ∈ V, the
+                                                                                              • Worst Removal (WR): Iteratively remove φ ∈ [1, ρ |V|] visits.
+following conditions hold: |{ p ∈ P : qip > 0}| < C and          p∈P qip <
+                                                                                                 Each removal yields a new schedule. In every iteration, we re-
+CQ, i.e. the residual demand of customer i can be satisﬁed by a sin-
+                                                                                                 move the visit who’s removal from the schedule will beneﬁt the
+gle vehicle. In the third, and last step of the trip generation phase,
+                                                                                                 objective value the most. Ties are broken arbitrarily.
+for each of the customers i ∈ V with residual demand, we create a
+                                                                                               • Shaw Removal (SR): Remove similar visits, where the similar-
+single visit v having qtv = qi . Next, these visits are greedily inserted
+                                                                                                 ity between a pair of visits u, v, u = v, is expressed by a sim-
+into the existing trips, following the insertion strategies outlined in
+                                                                                                 ilarity metric s(u, v). Let luv = −1 if visits u, v are performed
+the previous section, thereby always selecting the strategy that in-
+                                                                                                 during the same trip, luv = 1 otherwise. We deﬁne s(u, v ) =
+creases the objective the least.
+    Once all trips are generated, we assign them to vehicles. This
+                                                                                                 ϕ div iu + ψ lvu + χqtu − qtv 1 , where ϕ , ψ , χ are independent
+                                                                                                 scalars, and where the terms div iu , resp. qtu − qtv 1 have been
+assignment problem is solved by a greedy heuristic which allo-
+                                                                                                 normalized by resp. the largest distance between a pair of cus-
+cates trips one by one, to the vehicle with the shortest itinerary,
+                                                                                                 tomers, and a vector representing the largest demand for each
+with ties broken arbitrarily. In case the vehicles are heterogeneous,
+                                                                                                 product. The SR operator iteratively removes φ ∈ [1: ρ |V|] vis-
+a trip is only assigned to vehicle if that vehicle meets the capacity
+                                                                                                 its from the schedule, each time selecting the visit v∗ which is
+requirements to perform that trip. For instance, there might exist a
+                                                                                                 most similar to the visit u removed in the preceding iteration,
+vehicle which has more capacity than the smallest vehicle (C × Q),
+                                                                                                 i.e. v∗ = argmin s(u, v ). The ﬁrst visit to be removed is selected
+but has fewer compartments. As such, this larger vehicle is unable                                              v
+to perform trips in which C different products have to be delivered.                               at random.
+8                                       L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904
+
+
+    • Longest Route Removal(LRR): remove the longest route from                            Table 5
+                                                                                           The parameters of ALNS.
+      the schedule.
+    • Visits in Long Routes Removal(VLRR): randomly remove φ ∈ [1,                           Notation       Description                                  Value
+      0.5Vnum ] visits from the η = 0.5|K | longest routes, where Vnum                       nonImpmax      Maximum number of non-improving iterations   1000
+      is the total number of visits in these routes.                                         timeLimit      Time limit (in seconds)                      3600
+                                                                                             T              Initial temperature SA                       200
+   Next to the above removal operators, we use one additional op-                            κ              Cooling rate SA                              0.9995
+erator which does not remove visits, but reallocates trips in their                          Nsg            Number of iterations per segment             100
+entirety:                                                                                    ξ              Reaction factor                              0.1
+                                                                                             ρ              Destroy rate for removal operators           0.45
+    •   Trip Reallocation (TR): Randomly select and remove ζ ∈ [1:                           ϕ              First Shaw parameter                         0.2
+                                                                                             ψ              Second Shaw parameter                        0.25
+        0.45|T|] trips from the schedule. Sort the removed trips in de-                      χ              Third Shaw parameter                         0.1
+        scending order based on their duration, and iteratively re-insert
+        them back into the schedule, each time assigning a trip to the
+        vehicle with the shortest itinerary.
+                                                                                        6.1. Problem instances
+    Note that, unlike the other removal operators, the TR operator
+is not followed by one of the insertion operators described below.                          To generate realistic benchmark instances, we used data from
+    To repair the (partially) destroyed schedules, four repair opera-                   NingBo Chaoyang Oil Transportation Co., Ltd., a Chinese petroleum
+tors are used to reschedule visits that are removed by the destroy                      transportation company. The customer demands for each product
+operators:                                                                              are sampled from their customer delivery data. Similarly, the ve-
+                                                                                        hicle sizes (number of compartments and compartment dimen-
+    • Greedy Insertion (GI): For each of the unscheduled visits in the                  sions) are based on vehicles used by the company. Unfortunately,
+      removal pool, this operator computes the lowest cost to re-                       the company was unable to provide us with the actual locations of
+      insert the visit somewhere in the schedule using the II, SI and                   the fuel stations (customers), or the travel distances between each
+      STI insertion strategies. Next, the operator inserts the visit with               pair of locations. Instead we were provided with the travel distance
+      the lowest insertion cost into the schedule, and updates the in-                  ri between the depot and each customer location i ∈ V. To mimic
+      sertion costs of the remaining unscheduled visits accordingly.                    actual travel data, we assigned each customer i to a location rela-
+      This procedure is repeated until all visits have been resched-                    tive to the depot by a polar coordinate (ri , φ i ), where φ i is a ran-
+      uled.                                                                             dom angle uniformly selected from [0, 360[. The distance dij be-
+    • Greedy with Split Preference (GSP): Same as GI, but instead of                    tween locations i and j is given by the Euclidean distance, rounded
+      considering all insertion strategies, this operator attempts to in-               down to the nearest integer. By computing the distance matrix in
+      sert each visit using SI. Only in the event that a visit cannot be                this manner, we preserve the travel distances ri , while guarantee-
+      inserted through SI, e.g. when the existing trips do not have                     ing that the distance matrix satisﬁes the triangle inequality.
+      enough residual capacity, the operator resorts to the II and STI                      To evaluate the performance of the ALNS heuristic, we ﬁrst
+      strategies.                                                                       generated 112 problem instances partitioned into 64 small and
+    • Regret Insertion (Ropke and Pisinger, 2006) (RI-2, RI-3): For                     48 medium instances. Each instance speciﬁes a set of customers,
+      each unscheduled visit v, we compute the cheapest option f v1                     their locations, a demand per product per customer, the number
+      to reschedule visit v through the 3 different insertion strate-                   of available vehicles, the number of compartments in a vehicle,
+      gies, as well as the ith cheapest alternative fvi for when options                and the volume of a compartment. The small instances have up
+       f j1 , . . . , fvi−1 are unavailable. For each unscheduled visit v, a so-        to 16 customers, up to 5 homogeneous vehicles each having 3
+        called regret cost iv is computed, where iv is the difference in                compartments with a ﬁxed volume of 8k units, and up to 3 dif-
+        cost between fv1 and fvi . At each iteration, the operator greedily             ferent petrol products. The medium instances on the other hand
+        selects the visit v with lowest cost iv , reschedules it using fv1 ,            have up to 60 customers which are served by up to 20 homoge-
+                        j                                                               neous vehicles having the same number of compartments as in
+        and updates fu for j = 1, . . . , i for the remaining unscheduled
+        visits accordingly. We include two different Regret Insertion op-               the small instances, but with capacities of up to 16k units. The
+        erators, RI-2 and RI-3, for i = 2 and i = 3 respectively.                       following naming convention is used to uniquely identify these
+                                                                                        problem instances: sα -vβ -pγ -cδ − , where α denotes the num-
+   Since the insertion heuristics are quite myopic, we followed the                     ber of customers, β the number of vehicles, γ the number of prod-
+suggestion of Ropke and Pisinger (2006) to add noise to the in-                         ucts, δ the number of compartments per vehicle and the capac-
+sertion heuristics. This prevents these heuristics from always mak-                     ity of a single compartment. Sections 6.2–6.5 present the compu-
+ing the move that seems best locally. The same settings as in                           tational results for these homogeneous problem instances. Later,
+Ropke and Pisinger (2006) are used.                                                     in Section 6.6, we conduct a limited number of experiments on
+                                                                                        problem instances involving a heterogeneous ﬂeet of vehicles. As
+6. Experiments                                                                          described in Section 6.6, these heterogeneous problem instances
+                                                                                        are obtained through a simple transformation of the homogeneous
+   In this section, we perform an experimental evaluation of the                        problem instances.
+proposed ALNS heuristic based on a large testbed of FRP instances
+derived from real-world data. All experiments are conducted on a                        6.2. Performance of ALNS
+system having an Intel Core i5-3320M 2.67 GHz Processor, 8 GB
+RAM, and running Windows 10 Professional. The algorithms are                                In this section, we analyze the performance of the ALNS heuris-
+implemented in Java 8. The MILP models are solved through IBM                           tic by comparing it against the bounds produced by the MILP
+ILOG CPLEX 12.8 using default settings and a time limit of 7200                         model from Section 3 and the CG model from Section 4. We solve
+seconds. An overview of the parameters used in our ALNS imple-                          the set of small instances with the MILP model, the CG model and
+mentation is provided in Table 5. These parameters are determined                       the ALNS heuristic. The medium instances are solved through CG
+empirically. The scalars α , β in the objective function (2) are ﬁxed                   and ALNS since these instances are too large to solve through the
+to 100 and 1 respectively.                                                              MILP formulation.
+                                L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904                         9
+
+
+
+
+                                                                 Fig. 2. Gap comparison.
+
+
+
+
+   Detailed results for each instance are given in Tables A.7 and               gap(%) columns in the same table. Finally, the black line (CG LB)
+A.8 in the Appendix. Column LB provides the strongest lower bound               and the red line (MILP LB) represent the gaps between these two
+derived from the CG and, when available, the MILP model. For                    lower bounds and the strongest lower bound (0% line). For in-
+                                                                                                                            −CG
+ALNS, we report the best fb , average fa and worst fw solution ob-              stance, the black line is calculated as − LBLB  . As can be observed
+served in 10 independent invocations of the ALNS algorithm, as                  from Fig. 2, for the ﬁrst 18 instances the MILP model produces the
+well as the average computation time t(s). Column gap reports the               strongest lower bounds. Once the instances become too large (12
+                                                       fb −LB                   customers or more), the MILP model is no longer able to derive
+percentage gap between fb and LB, calculated as           fb
+                                                              . For MILP,
+we report the best solution f obtained within a time limit of 2                 strong bounds: for instances 40–64 the best lower bound is pro-
+hours, the percentage gap between f and LB, and the computation                 vided by the CG model. Fig. 2a depicts the gaps computed between
+time t(s) in seconds. Finally, for CG, we report the best objective             ALNS and CG for the medium instances. Even for the largest in-
+value f and the computation time t(s) in seconds. All instances are             stances in this set, the gap stays well below 12%.
+ordered in ascending order of the number of customers, number of                    Fig. 3 analyses various properties of the solutions obtained
+vehicles, number of products, number of compartments and com-                   through the ALNS heuristic. |Cap| is the total vehicle capacity (sum
+partment size.                                                                  of compartment capacities). Fig. 3a shows the average number of
+    As can be observed from Table A.7, the MILP model only solves               trips performed by a vehicle. This number ranges from 0.5 to 10.5,
+instances up to 10 customers within a time limit of 2h. Out of the              and tends to grow linear in the number of customers. The slope
+64 small instances, MILP solves 18 instances to proven optimality.              of these curves is proportional to the number of available vehi-
+The same optimal solutions are found by our ALNS heuristic. For                 cles, and their capacities. Fig. 3b depicts the average number of
+the instances with 12 or more customers, MILP never terminates                  customers visited during a single trip. Clearly this number is lim-
+before the two-hour time limit. The ALNS heuristic however is able              ited by the vehicle capacity. In the FRP the average number of
+to ﬁnd high quality solutions (average gap 1.7%) for all small in-              customers per trip is quite low due to the fact that customer de-
+stances in less than 10 seconds per instance. When comparing the                mands are high compared to the vehicle capacities. Finally Fig. 3c
+best ALNS solutions f(b) with the MILP solutions f we observe that              measures the vehicle utilization, computed as the average fraction
+ALNS consistently outperforms MILP as the ALNS solutions are ei-                of the vehicle capacity occupied during a trip. Clearly, the ALNS
+ther identical or better than the MILP solutions for all small in-              heuristic is able to compute very dense solutions, with average uti-
+stances.                                                                        lization rates of up to 97%. The average utilization rate increases
+    To assess the scalability of the ALNS heuristic, we repeat                  inversely proportional to the total vehicle capacity, and is relatively
+these computational experiments on the set of medium instances                  independent of the number of available vehicles.
+(Table A.8). For these instances, we can only compare against the
+                                                                                6.3. Computation times
+bounds obtained from our CG model. Even for the largest instances
+in this set, having 60 customers and 20 vehicles, computation
+                                                                                    Fig. 4 shows the inﬂuence of the various instance features on
+times of the ALNS heuristic stay well below 25 minutes, while ob-
+                           f −LB
+                                                                                the average ALNS computation times. Naturally, computation times
+taining an average gap ( b f ) of 7.5%. When expressing the gap                 go up when the number of customers increases. For a ﬁxed num-
+                           b
+between LB and average objective value fa (as opposed to fb ), we               ber of customers, we observe a decrease in computation time when
+witness only a minor gap increase of 1.3%. This shows that the                  the number of vehicle compartments or their capacity increases
+ALNS results are robust across multiple runs.                                   (Fig. 4b and c). A strong increase in computation time is observed
+   Fig. 2a depicts a summary of the bounds computed for each of                 when the number of different products increases (Fig. 4d). Finally,
+the instances in the small data set. The 0% gap line corresponds                in contrast to the aforementioned instance features, we do not wit-
+to the LB column in Table A.7, i.e. the strongest lower bound.                  ness a strong correlation between the number of vehicles and the
+The blue line (ALNS) and green line (MILP UB) correspond to the                 total computation time of the ALNS heuristic (Fig. 4a).
+10                               L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904
+
+
+
+
+                                                                  Fig. 3. Solution statistics.
+
+
+
+
+6.4. Impact of compartment splitting                                               obtained from splitting compartments when the number of cus-
+                                                                                   tomers increases.
+    Individual compartments of fuel delivery vehicles are typically
+equipped with debit meters to deliver precise quantities of fuel to                6.5. ALNS Operator performance
+customers. Moreover, it becomes possible to split the fuel stored
+into a single compartment over multiple customers. From an oper-                       Fig. 6 investigates the performance of the ALNS operators de-
+ational as well as a computational perspective, allowing compart-                  scribed in Section 5.3. This analysis is performed using average re-
+ment splitting increases the complexity of the problem due to a                    sults obtained from 16 instances, each having 40 customers, and
+drastic increase in search space. A reasonable question to ask is                  which have been solved 10 times per instance. The x-axis of each
+how beneﬁcial it is to allow compartment splitting? One might                      graph shows the progress of the heuristic: the heuristic starts at 0%
+conjecture that there is a diminishing effect to compartment split-                ’completion’, and ﬁnishes at 100%. This completion metric allows
+ting when the number of customers increases due to an increase                     us to compare different ALNS runs mutually, independent of the
+in the number of potential routes and delivery patterns.                           number of iterations performed by the time the heuristic termi-
+    A comparison of the results obtained through ALNS with and                     nates. Fig. 6a depicts the cumulative contribution of each operator,
+without compartment-splitting over multiple customers on a sub-                    expressed in the number of times an operator discovered a new
+set of 32 instances containing 20–40 customers is presented in                     incumbent solution and normalized by the total number of times
+Fig. 5. As is shown in the ﬁgure, the objective value of all 32 in-                a new incumbent solution was found (percentage). Solid lines rep-
+stances improves when compartment-splitting is allowed. The av-                    resent destroy operators, whereas dashed lines are the repair op-
+erage improvement in objective value equals 12.5%. Moreover, we                    erators. Naturally, the largest number of improving solutions are
+observed a marginal increase in the average objective improvement                  discovered early in the search. Towards the end of the search, the
+                                       L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904                        11
+
+
+
+
+                                                 Fig. 4. Impact of instance features on average ALNS computation time.
+
+
+                                                                                       graph gradually ﬂattens out. The SR destroy operator (Shaw Re-
+                                                                                       moval, green) and the RI-3 repair operator (Remove-Insert, brown)
+                                                                                       are responsible for the discovery of the largest number of new best
+                                                                                       solutions.
+                                                                                           Recall from Section 5.2 that during each ALNS iteration, the de-
+                                                                                       stroy and repair operators are selected proportional to their nor-
+                                                                                       malized performance wγ / i ∈  wi , and that the performance of
+                                                                                       an operator γ ∈  is measured in terms of collected rewards
+                                                                                       (Table 4). The graphs in Fig. 6b and 6c plot for each operator γ ∈ 
+                                                                                       the average ratio wγ / i ∈  wi over the course of the heuristic. In-
+                                                                                       teresting to observe is that although percentage wise the SR re-
+                                                                                       moval operator discovers the largest number of incumbent solu-
+                                                                                       tions (Fig. 6a), the performance of this operator degrades over time
+                                                                                       (Fig. 6b) and is surpassed by the LRR (black) and VLRR operators
+                                                                                       (pink). The RI-2, RI-3 repair operators consistently outperform the
+                                                                                       GI and GSP operators (Fig. 6c). Finally we observe from Fig. 6a and
+                                                                                       b that the performance of the Worst-Removal (WR, green) operator
+                                                                                       is relatively poor. Also in the work by Ropke and Pisinger (2006),
+                                                                                       this operator has the lowest performance. To investigate whether
+                                                                                       it would be better to disable the WR operator altogether, we
+Fig. 5. Impact of compartment splitting. Each triangle represents an instance from     reran our experiments. We observed that disabling the WR opera-
+the medium data set; the triangle colors correspond to the number of customers in
+                                                                                       tor beneﬁts some instances, but negatively affects other instances.
+the instance. A slight increase in the beneﬁt obtained through compartment split-
+ting can be observed when the number of customers increases.                           We suspect that this operator is useful in some cases to escape
+12                                 L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904
+
+
+
+
+                 Fig. 6. ALNS operator performance, averaged over 10 invocations of the ALNS heuristic over 16 instances with 40 customers each.
+
+
+
+
+local minima. Therefore, we decided to leave the operator in,                      whereas for the Type C instances all vehicles have the same num-
+and let the operator selection mechanism (Section 5.2) deal with                   ber of equal-sized compartments, but some vehicles are larger than
+it.                                                                                others. Note that we do not consider problem instances where
+                                                                                   some vehicles have unequal sized compartments, as no such ve-
+6.6. Heterogeneous vehicles                                                        hicles exist in our real-world data. Moreover, the presence of ve-
+                                                                                   hicles with unequal sized compartments would further compli-
+   Thus far, all experiments are conducted with a homogeneous                      cate the problem at hand, since we would have to explicitly de-
+ﬂeet of vehicles. In this subsection we investigate the perfor-                    termine to which compartment a product is assigned, as opposed
+mance of the ALNS heuristic on problem instances involving a                       to assigning products to vehicles without distinguishing individual
+heterogeneous set of vehicles. To perform this experiment in                       compartments.
+a controlled manner, we use the homogeneous instances intro-                          Given an instance of type A with k vehicles, C compartments
+duced in Section 6.1 to generate sets of heterogeneous problem                     per vehicle, and Q the capacity of a single compartment, and Q =
+instances.                                                                         C × Q the total vehicle capacity, we create instances of types B and
+   In what remains we refer to the set of homogeneous instances                    C as follows:
+as Type A instances. We generate two new sets of heterogeneous
+problem instances, which we will refer to as Type B and Type C
+instances respectively. These new instances only differ in one di-                     Type B: k1 = 0.75 × k vehicles with C1 = C − 1 compart-
+mension from the Type A instances: instances of Type B are in-                            ments with a compartment size of Q1 = Q /(C − 1 ), and k2 =
+stances in which the vehicle capacity of all the vehicles is the                          0.25 × k vehicles with C2 = C compartments with a com-
+same, but some vehicles have more (but smaller) compartments,                             partment size of Q2 = Q /C
+                                  L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904                         13
+
+
+                               Table 6
+                               Results for the heterogeneous problem instances (averages).
+
+                                                       Small instances                       Medium instances
+
+                                                       A           B           C             A          B             C
+
+                                fb                     8769.84     8661.11     8656.70       24925.40   24645.71      24673.69
+                                fa                     8827.50     8739.25     8766.04       25264.17   25007.96      25034.56
+                                fw                     8935.86     8842.52     8878.59       25675.85   25425.00      25456.71
+                                gap                    1.69        6.01        5.89          7.50       8.24          9.43
+                                t(s)                   0.61        1.02        1.05          99.47      201.37        213.93
+                                AVG trips/vehic        3.00        2.96        2.96          5.08       5.07          5.12
+                                AVG cust/trip          1.41        1.41        1.37          2.21       2.13          2.12
+                                AVG vehic cap util     0.89        0.89        0.88          0.93       0.93          0.93
+
+
+
+
+   Type C: k1 = 0.75 × k vehicles with C1 = C compartments                       7. Conclusions
+      with a compartment size of Q1 = 0.75Q /C, and k2 = 0.25 ×
+      k vehicles with C2 = C compartments with a compartment                          In this paper, we addressed a Fuel Replenishment Problem
+      size of Q2 = Q ×k−(C×k
+                          k1×C×Q1 )
+                             2
+                                                                                   (FRP). Speciﬁcally, we considered a split delivery vehicle routing
+                                                                                   problem with multiple compartments and multiple trips. The ob-
+    Note that, for a given instance of Type A, the corresponding in-               jective is to determine the routing of the vehicles, the delivery pat-
+stances of Types B and C have the exact same number of vehicles,                   tern of each trip and the allocation of products to vehicle compart-
+and, summed over all vehicles, the total available vehicle capacity                ments, while minimizing the makespan of the resulting routes. We
+is also the same. As per example, from a type A instance s20-v5-                   formally deﬁned the problem and proposed a MILP model for it. In
+p3-c3-80 0 0 with k = 5, C = 3, Q = 80 0 0, the following 2 new in-                order to solve this problem effectively, we proposed an Adaptive
+stances are created:                                                               Large Neighborhood Search (ALNS) algorithm. Additionally, we also
+                                                                                   proposed a column generation approach to compute tight lower
+   Type B: k1 = 3 vehicles with C1 = 2 compartments with a com-                    bounds.
+      partment size of Q1 = 120 0 0, and k2 = 2 vehicles with C2 =                     We generated small and medium-sized instance sets to evalu-
+      3 compartments with a compartment size of Q2 = 80 0 0. No-                   ate the performance of ALNS. We showed that the ALNS is able
+      tice that both the vehicles with 2 compartments and with 3                   to ﬁnd (near) optimal solutions much faster than the exact MILP
+      compartments have a total capacity of 240 0 0. The 5 vehicles                model using CPLEX. Moreover, the ALNS heuristic is able to han-
+      together have 5 × 240 0 0 = 120 0 0 0 capacity.                              dle instances that are signiﬁcantly larger: we obtain very good
+   Type C: k1 = 3 vehicles with C1 = 3 compartments with a com-                    solutions within 10 0 0 seconds for instances with 60 customers,
+      partment size of Q1 = 60 0 0, and k2 = 2 vehicles with C2 =                  20 vehicles, 3 products and 4 compartments. Finally, sensitivity
+      3 compartments with a compartment size of Q2 = 110 0 0.                      analysis is performed to assess the inﬂuence of important prob-
+      So we have 3 smaller vehicles with a total vehicle capac-                    lem instance features (number of vehicles, products, compart-
+      ity of 180 0 0, and 2 larger vehicles with a total vehicle ca-               ments and their capacity) on the solution quality and computa-
+      pacity of 330 0 0. These 5 vehicles together have 120 0 0 0                  tion times. Our numerical results show that signiﬁcant savings
+      capacity.                                                                    are obtained by allowing for multiple trips and splitting customer
+                                                                                   demand.
+    Using the Type A instances listed in Tables A.7 and A.8, we
+                                                                                       Future research could involve extending our models and
+generate both small and medium sized instances of Types B and
+                                                                                   solution approach to consider stochastic demands. In this
+C. Table 6 reports the results averaged over all heterogeneous
+                                                                                   context, Inventory-Routing models are highly relevant to
+instances. A description of the reported values can be found in
+                                                                                   consider.
+Section 6.2.
+    When comparing the results of Type B, C against Type A, we
+notice that both the best, average and worst ALNS objective values
+improve while the optimality gaps stay roughly the same. Despite                   CRediT authorship contribution statement
+the fact that the heterogeneous instances are harder to solve, as
+witnessed from the increased computation times, we conclude that                      L. Wang: Conceptualization, Methodology, Software, Validation,
+the ALNS heuristic produces solutions of consistent quality across                 Writing - original draft. J. Kinable: Conceptualization, Methodol-
+different instance types. Increasing the number of compartments                    ogy, Software, Validation, Writing - original draft, Supervision. T.
+per vehicle, as is the case for instances of Type B, results in a                  van Woensel: Conceptualization, Writing - review & editing, Su-
+slightly higher vehicle utilization, and hence a marginal reduction                pervision.
+in the number of trips that have to be performed per vehicle. The
+improvements in both the best, average and worst ALNS solutions                    Acknowledgements
+for Type C, although minor, show that further cost reductions can
+be achieved when an adequate mixture of differently-sized vehi-                        This research was supported in part by the Netherlands Organ-
+cles is deployed.                                                                  isation for Scientiﬁc Research (NWO) grant 629.002.211.
+14                                  L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904
+
+
+Appendix A. Detailed computational results
+
+
+
+              Table A1
+              Small instances.
+
+                                                    ALNS                                           MILP                            CG
+
+                instance               LB           fb        fa          fw         gap    t(s)   f          gap     t(s)         f         t(s)
+
+                s2-v3-p2-c3-8000       4900.0       4900      4900        4900       0.0    0.2    4900       0.0     4.6          3433.3    0.1
+                s2-v3-p2-c4-8000       3383.0       3383      3383        3383       0.0    0.2    3383       0.0     3.3          2849.7    0.1
+                s2-v3-p3-c3-8000       5335.0       5335      5335        5335       0.0    0.2    5335       0.0     2.4          4635.0    0.1
+                s2-v3-p3-c4-8000       5109.0       5109      5109        5109       0.0    0.1    5109       0.0     3.9          3742.3    0.2
+                s2-v5-p2-c3-8000       2700.0       2700      2700        2700       0.0    0.1    2700       0.0     2.4          2100.0    0.1
+                s2-v5-p2-c4-8000       2700.0       2700      2700        2700       0.0    0.0    2700       0.0     2.5          1743.0    0.1
+                s2-v5-p3-c3-8000       3435.0       3435      3435        3435       0.0    0.1    3435       0.0     2.9          2835.0    0.1
+                s2-v5-p3-c4-8000       2726.0       2726      2726        2726       0.0    0.1    2726       0.0     2.7          2289.0    0.1
+                s4-v3-p2-c3-8000       7372.0       7372      7372        7372       0.0    0.1    7372       0.0     6.7          5905.3    0.2
+                s4-v3-p2-c4-8000       5249.0       5249      5249        5249       0.0    0.1    5249       0.0     2.6          4978.3    0.3
+                s4-v3-p3-c3-8000       9875.0       9875      9875        9875       0.0    0.2    9875       0.0     320.7        9441.7    0.4
+                s4-v3-p3-c4-8000       7339.0       7399      7459        7599       0.8    0.1    7339       0.0     5.5          6832.3    0.3
+                s4-v5-p2-c3-8000       4972.0       4972      4972        4972       0.0    0.1    4972       0.0     6.7          3612.0    0.2
+                s4-v5-p2-c4-8000       4949.0       4949      4949        4949       0.0    0.1    4949       0.0     4.3          3045.0    0.3
+                s4-v5-p3-c3-8000       6476.0       6476      6555.9      7275       0.0    0.1    6476       0.0     242.5        5775.0    0.4
+                s4-v5-p3-c4-8000       5003.0       5003      5023.2      5205       0.0    0.1    5003       0.0     6.2          4179.0    0.6
+                s6-v3-p2-c3-8000       7410.0       7410      7410        7410       0.0    0.1    7410       0.0     19.1         7129.7    0.6
+                s6-v3-p2-c4-8000       6375.0       6375      6375        6375       0.0    0.1    6375       0.0     9.0          5995.3    0.5
+                s6-v3-p3-c3-8000       11126.9      11327     11378.1     11,534     1.8    0.2    11327      1.8     7204.8       11126.9   1.0
+                s6-v3-p3-c4-8000       8649.0       8649      8649.9      8650       0.0    0.1    8649       0.0     426.9        8480.3    2.3
+                s6-v5-p2-c3-8000       5010.0       5010      5010        5010       0.0    0.1    5010       0.0     72.0         4410.0    0.8
+                s6-v5-p2-c4-8000       4979.0       4979      4979        4979       0.0    0.1    4979       0.0     123.9        3667.1    0.7
+                s6-v5-p3-c3-8000       7083.6       7236      7275.6      7335       2.1    0.2    7236       2.1     7210.1       6727.0    1.1
+                s6-v5-p3-c4-8000       5347.0       5349      5409.2      5550       0.0    0.1    5347       0.0     397.3        5187.0    2.9
+                s8-v3-p2-c3-8000       8547.0       8547      8547        8547       0.0    0.2    8547       0.0     483.3        8438.8    1.0
+                s8-v3-p2-c4-8000       7515.0       7515      7537        7619       0.0    0.1    7515       0.0     184.1        7356.1    0.9
+                s8-v3-p3-c3-8000       12978.0      12978     13088.3     13,181     0.0    0.4    12978      0.0     7205.1       12978.0   4.4
+                s8-v3-p3-c4-8000       10065.7      10400     10419.7     10,500     3.2    0.2    10297      2.2     7200.6       10065.7   5.8
+                s8-v5-p2-c3-8000       5450.0       5450      5502.1      5647       0.0    0.1    5450       0.0     3293.2       5130.3    1.4
+                s8-v5-p2-c4-8000       5019.0       5019      5020.8      5022       0.0    0.1    5019       0.0     208.6        4504.2    1.8
+                s8-v5-p3-c3-8000       7800.0       8078      8088.6      8178       3.4    0.4    8078       3.4     7201.2       7800.0    6.3
+                s8-v5-p3-c4-8000       6602.0       6602      6671.3      6705       0.0    0.2    6602       0.0     4443.3       6226.5    4.9
+                s10-v3-p2-c3-8000      9357.6       9577      9751.8      9883       2.3    0.3    9577       2.3     7203.6       9357.6    2.1
+                s10-v3-p2-c4-8000      8237.0       8237      8257.6      8342       0.0    0.2    8237       0.0     765.6        7923.5    3.1
+                s10-v3-p3-c3-8000      14093.0      14420     14,440      14,520     2.3    0.8    14,523     3.0     7217.9       14093.0   5.8
+                s10-v3-p3-c4-8000      11306.4      11432     11554.5     11,636     1.1    0.4    11,736     3.7     7209.3       11306.4   19.5
+                s10-v5-p2-c3-8000      5876.9       6077      6090.6      6189       3.3    0.3    6077       3.3     7200.2       5693.3    2.5
+                s10-v5-p2-c4-8000      5238.0       5238      5238.1      5239       0.0    0.2    5238       0.0     565.7        4886.2    2.4
+                s10-v5-p3-c3-8000      8663.0       8820      8850        8920       1.8    0.7    9220       6.0     7220.4       8663.0    12.6
+                s10-v5-p3-c4-8000      6853.4       7132      7153.1      7235       3.9    0.4    7335       6.6     7215.4       6853.4    10.5
+                s12-v3-p2-c3-8000      11740.9      12049     12059.4     12,150     2.6    0.4    12,461     5.8     7223.1       11740.9   12.3
+                s12-v3-p2-c4-8000      9445.5       9888      9917.9      9988       4.5    0.3    9888       4.5     7213.9       9445.5    7.8
+                s12-v3-p3-c3-8000      17899.2      18126     18178.1     18,230     1.3    2.2    19,672     9.0     7206.8       17899.2   35.2
+                s12-v3-p3-c4-8000      13421.9      13904     14025.9     14,107     3.5    0.8    15,034     10.7    7204.3       13421.9   23.6
+                s12-v5-p2-c3-8000      7266.0       7549      7590.8      7750       3.7    0.5    7757       6.3     7208.6       7266.0    8.7
+                s12-v5-p2-c4-8000      5911.7       6188      6241        6391       4.5    0.4    6189       4.5     7205.9       5911.7    8.9
+                s12-v5-p3-c3-8000      10712.5      11128     11188.8     11,231     3.7    2.8    11,437     6.3     7211.8       10712.5   27.0
+                s12-v5-p3-c4-8000      8229.4       8607      8647.4      8711       4.4    1.0    8805       6.5     7213.8       8229.4    35.6
+                s14-v3-p2-c3-8000      12859.2      13183     13223.9     13,284     2.5    0.5    14,399     10.7    7214.6       12859.2   7.5
+                s14-v3-p2-c4-8000      10648.9      11018     11029.2     11,120     3.4    0.6    11,627     8.4     7209.9       10648.9   16.6
+                s14-v3-p3-c3-8000      19387.0      19981     20082.7     20,388     3.0    4.4    20,184     3.9     7208.7       19387.0   37.1
+                s14-v3-p3-c4-8000      14821.0      15243     15,263      15,343     2.8    2.0    17,188     13.8    7213.1       14821.0   59.6
+                s14-v5-p2-c3-8000      7983.8       8184      8194.1      8285       2.4    0.6    8392       4.9     7205.8       7983.8    31.2
+                s14-v5-p2-c4-8000      6439.3       6819      6898.7      7118       5.6    0.6    7528       14.5    7210.6       6439.3    6.3
+                s14-v5-p3-c3-8000      11852.4      12281     12301.9     12,386     3.5    3.4    14,030     15.5    7212.4       11852.4   38.1
+                s14-v5-p3-c4-8000      9142.1       9343      9454.2      9548       2.2    1.4    11,264     18.8    7210.9       9142.1    61.1
+                s16-v3-p2-c3-8000      14380.4      14522     14562.5     14,623     1.0    0.9    15,443     6.9     7210.6       14380.4   45.0
+                s16-v3-p2-c4-8000      11366.2      11947     11978.1     12,050     4.9    0.9    13,899     18.2    7211.1       11366.2   19.2
+                s16-v3-p3-c3-8000      20866.8      21731     21916.3     22,141     4.0    6.7    26,740     22.0    7209.8       20866.8   121.3
+                s16-v3-p3-c4-8000      15880.6      16272     16426.4     16,685     2.4    3.0    18,534     14.3    7224.7       15880.6   50.7
+                s16-v5-p2-c3-8000      8706.1       8922      8962.6      9122       2.4    1.2    11,177     22.1    7216.1       8706.1    25.9
+                s16-v5-p2-c4-8000      6977.6       7447      7508.9      7650       6.3    0.9    8449       17.4    7225.8       6977.6    20.8
+                s16-v5-p3-c3-8000      12789.3      13331     13476.9     13,640     4.1    6.2    15,510     17.5    7216.3       12789.3   55.2
+                s16-v5-p3-c4-8000      9766.5       10072     10169.9     10,388     3.0    2.9    11,119     12.2    7209.3       9766.5    63.1
+                                            L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904                                               15
+
+
+                                            Table A2
+                                            large instances.
+
+                                                                                       ALNS
+
+                                              Instance                    LB           fb         fa           fw         gap(%)     t(s)
+
+                                              s20-v5-p2-c3-8000           12188.5      12,806     12909.6      13,115     4.8        2.8
+                                              s20-v5-p2-c3-16000          7409.5       7765       8015         8184       4.6        1.2
+                                              s20-v5-p2-c4-8000           9462.0       9868       10010.8      10,287     4.1        2.0
+                                              s20-v5-p2-c4-16000          7087.8       7763       7795.3       7870       8.7        1.7
+                                              s20-v5-p3-c3-8000           17881.4      18,476     18737.1      19,000     3.2        9.7
+                                              s20-v5-p3-c3-16000          9854.0       10,181     10,501       10,702     3.2        3.4
+                                              s20-v5-p3-c4-8000           13438.6      14,381     14557.1      14,797     6.6        5.1
+                                              s20-v5-p3-c4-16000          7826.4       8393       8601.7       8914       6.8        2.9
+                                              s20-v3-p2-c3-8000           19863.7      20,806     20937.9      21,112     4.5        2.0
+                                              s20-v3-p2-c3-16000          11951.3      12,461     12625.4      12,770     4.1        1.4
+                                              s20-v3-p2-c4-8000           15843.3      16,068     16159.2      16,377     1.4        1.3
+                                              s20-v3-p2-c4-16000          9671.3       10,087     10212.4      10,297     4.1        0.8
+                                              s20-v3-p3-c3-8000           28904.7      30,178     30465.6      30,896     4.2        8.9
+                                              s20-v3-p3-c3-16000          15840.2      16,480     16848.3      17,301     3.9        3.5
+                                              s20-v3-p3-c4-8000           21964.4      23,380     23646.4      23,892     6.1        5.1
+                                              s20-v3-p3-c4-16000          12789.5      13,593     13788.3      14,205     5.9        2.4
+                                              s40-v8-p2-c3-8000           26291.0      28,614     28959.1      29,348     8.1        52.7
+                                              s40-v8-p2-c3-16000          15283.1      16,726     17125.5      17,365     8.6        26.2
+                                              s40-v8-p2-c4-8000           21064.5      22,666     22906.6      23,308     7.1        42.8
+                                              s40-v8-p2-c4-16000          12637.0      13,601     13799.5      14,086     7.1        14.2
+                                              s40-v8-p3-c3-8000           33332.9      35,855     36513.8      37,031     7.0        109.2
+                                              s40-v8-p3-c3-16000          18848.1      20,811     21144.2      21,373     9.4        57.7
+                                              s40-v8-p3-c4-8000           25807.2      27,737     28040.5      28,710     7.0        81.2
+                                              s40-v8-p3-c4-16000          15313.6      16,824     17167.5      17,646     9.0        31.4
+                                              s40-v5-p2-c3-8000           41228.1      44,515     44891.1      45,773     7.4        36.1
+                                              s40-v5-p2-c3-16000          24041.8      25,923     26430.8      26,979     7.3        19.6
+                                              s40-v5-p2-c4-8000           32531.6      34,962     35338.2      35,898     7.0        32.8
+                                              s40-v5-p2-c4-16000          19740.2      20,786     21175.9      21,413     5.0        15.0
+                                              s40-v5-p3-c3-8000           51363.0      56,067     56652.1      57,118     8.4        106.4
+                                              s40-v5-p3-c3-16000          29233.9      32,220     32573.9      32,969     9.3        53.9
+                                              s40-v5-p3-c4-8000           40220.4      42,832     43505.7      44,094     6.1        63.7
+                                              s40-v5-p3-c4-16000          23551.8      25,719     26084.4      26,450     8.4        32.4
+                                              s60-v8-p2-c3-8000           41780.3      46,210     46638.9      47,495     9.6        258.1
+                                              s60-v8-p2-c3-16000          23941.0      26,339     26728.4      27,268     9.1        101.9
+                                              s60-v8-p2-c4-8000           32678.6      36,056     36521.4      37,241     9.4        157.3
+                                              s60-v8-p2-c4-16000          19278.8      21,463     21752.3      22,078     10.2       76.2
+                                              s60-v8-p3-c3-8000           52705.7      59,290     59725.3      60,357     11.1       580.4
+                                              s60-v8-p3-c3-16000          29862.5      33,034     33609.6      34,542     9.6        236.7
+                                              s60-v8-p3-c4-8000           40697.6      45,345     45897.1      46,424     10.2       411.9
+                                              s60-v8-p3-c4-16000          23518.1      26,332     26713.7      27,155     10.7       197.2
+                                              s60-v12-p2-c3-8000          28885.1      31,882     32295.4      32,797     9.4        235.3
+                                              s60-v12-p2-c3-16000         16554.0      18,411     18611.4      18,885     10.1       111.6
+                                              s60-v12-p2-c4-8000          22593.3      25,235     25444.7      25,821     10.5       149.6
+                                              s60-v12-p2-c4-16000         13319.0      14,960     15168.7      15,487     11.0       77.0
+                                              s60-v12-p3-c3-8000          36437.0      40,961     41531.1      41,945     11.0       536.3
+                                              s60-v12-p3-c3-16000         20636.7      22,929     23362.9      24,107     10.0       281.8
+                                              s60-v12-p3-c4-8000          28136.6      31,103     31851.4      32,211     9.5        340.5
+                                              s60-v12-p3-c4-16000         16289.6      18,325     18707.8      19,348     11.1       193.7
+
+
+
+
+References                                                                                      Cornillier, F., Laporte, G., Boctor, F.F., Renaud, J., 2009. The petrol station replenish-
+                                                                                                     ment problem with time windows. Comput. Oper. Res. 36 (3), 919–935.
+Abdelaziz, F.B., Roucairol, C., Bacha, C., 2002. Deliveries of liquid fuels to sndp gas         Derigs, U., Gottlieb, J., Kalkoff, J., Piesche, M., Rothlauf, F., Vogel, U., 2011. Vehicle
+    stations using vehicles with multiple compartments. In: IEEE international con-                  routing with compartments: applications, modelling and heuristics. OR spec-
+    ference on systems, man and cybernetics, 1. IEEE, pp. 478–483.                                   trum 33 (4), 885–914.
+Archetti, C., Bouchard, M., Desaulniers, G., 2011. Enhanced branch and price and cut            Desaulniers, G., 2010. Branch-and-price-and-cut for the split-delivery vehicle rout-
+    for vehicle routing with split deliveries and time windows. Transp. Sci. 45 (3),                 ing problem with time windows. Oper. Res. 58 (1), 179–192.
+    285–298.                                                                                    Dror, M., Trudeau, P., 1989. Savings by split delivery routing. Transp. Sci. 23 (2),
+Archetti, C., Speranza, M.G., Hertz, A., 2006. A tabu search algorithm for the split                 141–145.
+    delivery vehicle routing problem. Transp. Sci. 40 (1), 64–73.                               Dror, M., Trudeau, P., 1990. Split delivery routing. Naval Res. Logist. (NRL) 37 (3),
+Avella, P., Boccia, M., Sforza, A., 2004. Solving a fuel delivery problem by heuristic               383–402.
+    and exact approaches. Eur. J. Oper. Res. 152 (1), 170–179.                                  El Fallahi, A., Prins, C., Calvo, R.W., 2008. A memetic algorithm and a tabu search
+Benantar, A., Ouaﬁ, R., Boukachour, J., 2016. A petrol station replenishment problem:                for the multi-compartment vehicle routing problem. Comput. Oper. Res. 35 (5),
+    new variant and formulation. Logist. Res. 9 (1), 6.                                              1725–1741.
+Coelho, L.C., Laporte, G., 2015. Classiﬁcation, models and exact algorithms for mul-            Feillet, D., Dejax, P., Gendreau, M., Gueguen, C., 2006. Vehicle routing with time
+    ti-compartment delivery problems. Eur. J. Oper. Res. 242 (3), 854–864.                           windows and split deliveries. Tech. Paper 851.
+Cornillier, F., Boctor, F., Renaud, J., 2012. Heuristics for the multi-depot petrol station     Henke, T., Speranza, M.G., Wäscher, G., 2015. The multi-compartment vehicle rout-
+    replenishment problem with time windows. Eur. J. Oper. Res. 220 (2), 361–369.                    ing problem with ﬂexible compartment sizes. Eur. J. Oper. Res. 246 (3), 730–743.
+Cornillier, F., Boctor, F.F., Laporte, G., Renaud, J., 2008. An exact algorithm for the         Hübner, A., Ostermeier, M., 2018. A multi-compartment vehicle routing problem
+    petrol station replenishment problem. J. Oper. Res. Soc. 59 (5), 607–615.                        with loading and unloading costs. Transp. Sci..
+Cornillier, F., Boctor, F.F., Laporte, G., Renaud, J., 2008. A heuristic for the multi-pe-      Jin, M., Liu, K., Bowden, R.O., 2007. A two-stage algorithm with valid inequalities for
+    riod petrol station replenishment problem. Eur. J. Oper. Res. 191 (2), 295–305.                  the split delivery vehicle routing problem. Int. J. Prod. Econ. 105 (1), 228–242.
+16                                         L. Wang, J. Kinable and T. van Woensel / Computers and Operations Research 118 (2020) 104904
+
+
+Lahyani, R., Coelho, L.C., Khemakhem, M., Laporte, G., Semet, F., 2015. A multi-com-        Muyldermans, L., Pang, G., 2010. On the beneﬁts of co-collection: experiments
+    partment vehicle routing problem arising in the collection of olive oil in tunisia.         with a multi-compartment vehicle routing algorithm. Eur. J. Oper. Res. 206 (1),
+    Omega 51, 1–10.                                                                             93–103.
+Lee, C.-G., Epelman, M.A., White III, C.C., Bozer, Y.A., 2006. A shortest path approach     Ng, W.L., Leung, S., Lam, J., Pan, S., 2008. Petrol delivery tanker assignment and
+    to the multiple-vehicle routing problem with split pick-ups. Transp. Res. Part B            routing: a case study in hong kong. J. Oper. Res. Soc. 59 (9), 1191–1200.
+    40 (4), 265–284.                                                                        Oppen, J., Løkketangen, A., 2008. A tabu search approach for the livestock collection
+Lihua, S., 2012. Study on the logistics optimization informationization of oil                  problem. Comput. Oper. Res. 35 (10), 3213–3229.
+    products in petrochemical enterprises. Comput. Appl. Chem. 29 (5), 620–                 Pisinger, D., Ropke, S., 2007. A general heuristic for vehicle routing problems. Com-
+    624.                                                                                        put. Oper. Res. 34 (8), 2403–2435.
+Luo, Z., Qin, H., Zhu, W., Lim, A., 2016. Branch and price and cut for the split-deliv-     Popović, D., Vidović, M., Radivojević, G., 2012. Variable neighborhood search heuris-
+    ery vehicle routing problem with time windows and linear weight-related cost.               tic for the inventory routing problem in fuel delivery. Expert Syst. Appl. 39 (18),
+    Transp. Sci. 51 (2), 668–687.                                                               13390–13398.
+Melechovskỳ, J., 2013. A variable neighborhood search for the selective multi-com-         Ropke, S., Pisinger, D., 2006. An adaptive large neighborhood search heuristic for the
+    partment vehicle routing problem with time windows. Lect. Note. Manag. Sci.                 pickup and delivery problem with time windows. Transp. Sci. 40 (4), 455–472.
+    5, 159–166.                                                                             Shaw, P., 1998. Using constraint programming and local search methods to solve
+Mendoza, J.E., Castanier, B., Guéret, C., Medaglia, A.L., Velasco, N., 2010. A memetic          vehicle routing problems. In: International conference on principles and practice
+    algorithm for the multi-compartment vehicle routing problem with stochastic                 of constraint programming. Springer, pp. 417–431.
+    demands. Comput. Oper. Res. 37 (11), 1886–1898.                                         Sierksma, G., Tijssen, G.A., 1998. Routing helicopters for crew exchanges on of-
+Mendoza, J.E., Castanier, B., Guéret, C., Medaglia, A.L., Velasco, N., 2011. Constructive       f-shore locations. Ann. Oper. Res. 76, 261–286.
+    heuristics for the multicompartment vehicle routing problem with stochastic             Vidović, M., Popović, D., Ratković, B., 2014. Mixed integer and heuristics model for
+    demands. Transp. Sci. 45 (3), 346–363.                                                      the inventory routing problem in fuel delivery. Int. J. Prod. Econ. 147, 593–604.
+

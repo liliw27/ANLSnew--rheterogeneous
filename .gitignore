@@ -1,0 +1,19 @@
+# Java / build artifacts
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ IDEA
+out/
+
+# Local helper files generated during compilation in this repo
+sources.txt
+
+# Build outputs created by scripts/build.sh
+build/
+
+# Solver outputs (objective/temperature traces, dumped solutions)
+output/
+
+
