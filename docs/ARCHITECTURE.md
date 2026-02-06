@@ -24,7 +24,7 @@
 - **车辆 itinerary（含多趟）**：`model.Route`（双向链表）
 - **depot 节点**：`model.DepotNode`（`index = 0`）
 
-> 提示（给新手）：需要调实验参数时，优先修改 `SA/SAConfig.java`（或在 `testSA` 里通过命令行参数覆盖，例如 `--timeLimitMs=3000 --seed=1`），不要去改 `SimulatedAnnealing` 里散落的字段。
+> 提示（给新手）：需要调实验参数时，优先修改 `src/SA/config/SAConfig.java`（或在 `testSA` 里通过命令行参数覆盖，例如 `--timeLimitMs=3000 --seed=1`），不要去改 `SimulatedAnnealing` 里散落的字段。
 
 ---
 
@@ -78,7 +78,7 @@ Segment 维护多舱多产品资源状态（对齐论文的“舱室分配/容�
 
 ### 3.2 插入时的“目标增量”
 
-`move/insertion/EvaluateInsertion.java` 会对“把一个 visit 插到某个位置”计算增量：
+`src/move/insertion/evaluation/EvaluateInsertion.java` 会对“把一个 visit 插到某个位置”计算增量：
 
 - **路程增量**：替换边 \((prev,next)\) 为 \((prev,cust)+(cust,next)\)
 - **makespan 惩罚**：如果该 route 的新时长超过旧 makespan，按乘子加入
@@ -89,7 +89,10 @@ Segment 维护多舱多产品资源状态（对齐论文的“舱室分配/容�
 
 ## 4. 一次 ALNS + SA 迭代如何执行（论文 Algorithm 1 对齐）
 
-核心类：`SA/SimulatedAnnealing.java`
+核心类：
+
+- `src/SA/AnnealingLoop.java`：主迭代循环（与论文 Algorithm 1 对齐）
+- `src/SA/SimulatedAnnealing.java`：状态容器 + 快照 + 算子集合（提供 `executeNextMove/accept/reject/restore` 等能力）
 
 每次迭代的高层流程是：
 
@@ -132,7 +135,7 @@ Segment 维护多舱多产品资源状态（对齐论文的“舱室分配/容�
 
 ## 5. Repair（插入）策略：II / SI / STI
 
-插入策略的统一入口：`move/insertion/EvaluateInsertion.java`
+插入策略的统一入口：`src/move/insertion/evaluation/EvaluateInsertion.java`
 
 它会把当前 schedule 的所有 `Segment` 分成两类：
 
@@ -172,7 +175,7 @@ destroy 算子位于 `move/removal/`，典型包括：
 
 ## 7. 初始解（InitialConstructor）
 
-`SA/InitialConstructor.java` 负责从需求矩阵构造一个可行初解，核心思路是：
+`src/SA/init/InitialConstructor.java` 负责从需求矩阵构造一个可行初解，核心思路是：
 
 - 根据车辆舱室总容量，把大需求拆成若干“直达（depot->customer->depot）”的 visit
 - 余量需求形成 reduced instance，再用插入评估逐个插入
@@ -196,9 +199,11 @@ destroy 算子位于 `move/removal/`，典型包括：
 
 代码里 `SimulatedAnnealing.verifyRouteState()` 会做上述一致性检查，是最重要的“自检器”。
 
+> （更新）一致性检查的实现已抽到 `src/SA/verify/SolutionVerifier.java`，`verifyRouteState()` 只是委托调用。
+
 ### 8.1 `verifyRouteState()` 实际检查了哪些点？
 
-在 `SA/SimulatedAnnealing.java` 中，`verifyRouteState()` 会逐条验证：
+在 `src/SA/verify/SolutionVerifier.java` 中，`verifyRouteState()` 会逐条验证：
 
 - **Route.duration**：沿链表累加 `distanceMatrix[node.index][node.next.index]`，必须等于 `Route.duration`
 - **Route.nrNodes**：从 `routeStart` 走到 `routeEnd` 的节点数必须等于 `Route.nrNodes`
@@ -221,16 +226,6 @@ destroy 算子位于 `move/removal/`，典型包括：
 
 ---
 
-## 10. 辅助/遗留工具（不属于主求解链路）
-
-本仓库中有一些仅用于“数据准备/实例生成”的遗留类，例如：
-
-- `src/io/GenerateInstance.java`
-
-它们不参与 `Reader → SimulatedAnnealing` 的主流程；学生如果只做算子/约束扩展，可以先忽略这些文件，避免被与求解无关的 I/O 细节干扰。
-
----
-
 ## 9. 扩展点（学生可以从这里开始改）
 
 ### 9.1 新增 destroy 算子
@@ -241,7 +236,7 @@ destroy 算子位于 `move/removal/`，典型包括：
 
 ### 9.2 新增 repair 算子
 
-1. 新建类继承 `move.insertion.Insertion`
+1. 新建类继承 `move.insertion.operators.Insertion`
 2. 实现 `move()` + `getObjective()`
 3. 在 `SimulatedAnnealing` 构造函数中加入 `insertionList`
 
@@ -251,5 +246,15 @@ destroy 算子位于 `move/removal/`，典型包括：
 
 - 把约束状态放进 `Segment`（或新增一个与 segment 同步更新的状态对象）
 - 在 `EvaluateInsertion` 中统一做可行性判断与增量计算
+
+---
+
+## 10. 辅助/遗留工具（不属于主求解链路）
+
+本仓库中有一些仅用于“数据准备/实例生成”的遗留类，例如：
+
+- `src/io/GenerateInstance.java`
+
+它们不参与 `Reader → SimulatedAnnealing` 的主流程；学生如果只做算子/约束扩展，可以先忽略这些文件，避免被与求解无关的 I/O 细节干扰。
 
 
